@@ -102,3 +102,54 @@ pub fn day02() -> () {
     println!("Part 1, result: {:?}", total01); // 11841
     println!("Part 2, result: {:?}", total02); // 13022
 }
+
+pub fn day03() -> () {
+    fn get_value(c: char) -> u32 {
+        let ascii = c as u32;
+        if ascii >= 97 {ascii - 96} else {ascii - 38}
+    }
+
+    let content = fs::read_to_string(String::from("input/day03.txt")).unwrap();
+    let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
+
+    let mut last_three: Vec<&str> = Vec::new();
+    let mut total01: u32 = 0;
+    let mut total02: u32 = 0;
+
+    for line in lines {
+        let (left, right): (&str, &str) = line.split_at(line.len() / 2);
+
+        'outer: for l in left.chars() {
+            for r in right.chars() {
+                if r == l {
+                    total01 += get_value(l);
+                    break 'outer;
+                }
+            }
+        }
+
+        last_three.push(line);
+        if last_three.len() == 3 {
+            for c in last_three[0].chars() {
+                match last_three[1].chars().position(|t| t == c) {
+                    Some(_) => {
+                        match last_three[2].chars().position(|t| t == c) {
+                            Some(_) => {
+                                total02 += get_value(c);
+                                break;
+                            },
+                            None => (),
+                        }
+                    },
+                    None => (),
+                };
+            };
+
+            last_three = Vec::new();
+        }
+    }
+
+    println!("############ DAY 3 ############");
+    println!("Part 1, result: {:?}", total01); // 7848
+    println!("Part 2, result: {:?}", total02); // 2616
+}
