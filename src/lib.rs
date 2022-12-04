@@ -153,3 +153,57 @@ pub fn day03() -> () {
     println!("Part 1, result: {:?}", total01); // 7848
     println!("Part 2, result: {:?}", total02); // 2616
 }
+
+pub fn day04() -> () {
+    let content = fs::read_to_string(String::from("input/day04.txt")).unwrap();
+    let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
+
+    let mut total01: u32 = 0;
+    let total02: u32 = 0;
+
+    for line in lines {
+        let mut a1: i32 = 0;
+        let mut a2: i32 = 0;
+        let mut b1: i32 = 0;
+        let mut b2: i32 = 0;
+
+        match line.chars().position(|c| c == ',') {
+            Some(p) => {
+                let (left, right): (&str, &str) = line.split_at(p);
+                println!("Left: {}", left);
+
+                match left.chars().position(|c| c == '-') {
+                    Some(p) => {
+                        let (x1, x2): (&str, &str) = left.split_at(p);
+                        println!("Left 01: {}", x1);
+                        println!("Left 02: {}", x2.trim_start_matches('-'));
+
+                        a1 = x1.parse().unwrap();
+                        a2 = x2.trim_start_matches('-').parse().unwrap();
+                    },
+                    None => (),
+                }
+
+                println!("Right: {}", right.trim_start_matches(','));
+                match right.trim_start_matches(',').chars().position(|d| d == '-') {
+                    Some(p) => {
+                        let (x1, x2): (&str, &str) = right.trim_start_matches(',').split_at(p);
+                        println!("Right 01: {}", x1);
+                        println!("Right 02: {}", x2.trim_start_matches('-'));
+                        b1 = x1.parse().unwrap();
+                        b2 = x2.trim_start_matches('-').parse().unwrap();
+                    },
+                    None => (),
+                }
+
+                total01 += if (a1 <= a2 && b1 <= b2) || (a2 <= a1 && b2 <= b1) { 1 } else { 0 };
+            },
+            None => (),
+        };
+
+    }
+
+    println!("############ DAY 4 ############");
+    println!("Part 1, result: {:?}", total01);
+    println!("Part 2, result: {:?}", total02);
+}
