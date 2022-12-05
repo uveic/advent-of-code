@@ -226,28 +226,16 @@ pub fn day05() -> () {
     //     [G] [G] [C] [J] [P] [P] [Z] [R] [H]
     //      1   2   3   4   5   6   7   8   9
 
-    let mut stack: HashMap<u32, &Vec<char>> = HashMap::new();
-    let v01 = &vec!['G', 'T', 'R', 'W'];
-    stack.insert(1, v01);
-    // stack.insert(2, &vec!['G', 'C', 'H', 'P', 'M', 'S', 'V', 'W']);
-    // stack.insert(3, &vec!['C', 'L', 'T', 'S', 'G', 'M']);
-    // stack.insert(4, &vec!['J', 'H', 'D', 'M', 'W', 'R', 'F']);
-    // stack.insert(5, &vec!['P', 'Q', 'L', 'H', 'S', 'W', 'F', 'J']);
-    // stack.insert(6, vec!['P', 'J', 'D', 'N', 'F', 'M', 'S']);
-    // stack.insert(7, vec!['Z', 'B', 'D', 'F', 'G', 'C', 'S', 'J']);
-    // stack.insert(8, vec!['R', 'T', 'B']);
-    // stack.insert(9, vec!['H', 'N', 'W', 'L', 'C']);
-    // vec![
-    //     vec!['G', 'T', 'R', 'W'],
-    //     vec!['G', 'C', 'H', 'P', 'M', 'S', 'V', 'W'],
-    //     vec!['C', 'L', 'T', 'S', 'G', 'M'],
-    //     vec!['J', 'H', 'D', 'M', 'W', 'R', 'F'],
-    //     vec!['P', 'Q', 'L', 'H', 'S', 'W', 'F', 'J'],
-    //     vec!['P', 'J', 'D', 'N', 'F', 'M', 'S'],
-    //     vec!['Z', 'B', 'D', 'F', 'G', 'C', 'S', 'J'],
-    //     vec!['R', 'T', 'B'],
-    //     vec!['H', 'N', 'W', 'L', 'C'],
-    // ];
+    let mut stack: HashMap<u32, Vec<char>> = HashMap::new();
+    stack.insert(1, vec!['G', 'T', 'R', 'W']);
+    stack.insert(2, vec!['G', 'C', 'H', 'P', 'M', 'S', 'V', 'W']);
+    stack.insert(3, vec!['C', 'L', 'T', 'S', 'G', 'M']);
+    stack.insert(4, vec!['J', 'H', 'D', 'M', 'W', 'R', 'F']);
+    stack.insert(5, vec!['P', 'Q', 'L', 'H', 'S', 'W', 'F', 'J']);
+    stack.insert(6, vec!['P', 'J', 'D', 'N', 'F', 'M', 'S']);
+    stack.insert(7, vec!['Z', 'B', 'D', 'F', 'G', 'C', 'S', 'J']);
+    stack.insert(8, vec!['R', 'T', 'B']);
+    stack.insert(9, vec!['H', 'N', 'W', 'L', 'C']);
 
     for line in lines {
         let position_from = line.find("from").unwrap();
@@ -256,16 +244,28 @@ pub fn day05() -> () {
         let from: &u32 = &line[(position_from + 5)..position_to].trim().parse().unwrap();
         let to: &u32 = &line[(position_to + 3)..].trim().parse().unwrap();
 
-        println!("\nLine: : {:?}", line);
         for _ in 0..*qty {
-            let item = stack.get(from).unwrap().pop().unwrap();
-            stack.get(to).unwrap().push(item);
-        }
+            let item: Option<&Vec<char>> = stack.get(from);
+            let mut i02: Vec<char> = item.unwrap().to_vec();
+            let i03: Option<char> = i02.pop();
+            stack.insert(*from, i02);
+            let i04: char = i03.unwrap();
 
-        println!("Qty: {:?}, from: {}, to: {}", qty, from, to);
+            let vt01: Option<&Vec<char>> = stack.get(to);
+            let mut vt02: Vec<char> = vt01.unwrap().to_vec();
+            vt02.push(i04);
+
+            stack.insert(*to, vt02);
+        }
     }
 
     println!("############ DAY 5 ############");
-    // println!("Part 1, result: {:?}", total01);
+    let v: Vec<u32> = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+    print!("Part 1, result: "); // JCMHLVGMG
+    for i in v {
+        let c: &Vec<char> = stack.get(&i).unwrap();
+        print!("{}", c[c.len() - 1]);
+    }
+    println!("");
     // println!("Part 2, result: {:?}", total02);
 }
