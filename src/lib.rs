@@ -159,13 +159,13 @@ pub fn day04() -> () {
     let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
 
     let mut total01: u32 = 0;
-    let total02: u32 = 0;
+    let mut total02: u32 = 0;
 
     for line in lines {
-        let mut a1: i32 = 0;
-        let mut a2: i32 = 0;
-        let mut b1: i32 = 0;
-        let mut b2: i32 = 0;
+        let mut a1: u32 = 0;
+        let mut a2: u32 = 0;
+        let mut b1: u32 = 0;
+        let mut b2: u32 = 0;
 
         match line.chars().position(|c| c == ',') {
             Some(p) => {
@@ -196,6 +196,10 @@ pub fn day04() -> () {
                     { 1 }
                     else
                     { 0 };
+
+                let low = if a1 > b1 { a1 } else { b1 };
+                let high = if a2 > b2 { b2 } else { a2 };
+                total02 += if low <= high { 1 } else { 0 };
             },
             None => (),
         };
@@ -204,5 +208,5 @@ pub fn day04() -> () {
 
     println!("############ DAY 4 ############");
     println!("Part 1, result: {:?}", total01); // 542
-    println!("Part 2, result: {:?}", total02);
+    println!("Part 2, result: {:?}", total02); // 900
 }
