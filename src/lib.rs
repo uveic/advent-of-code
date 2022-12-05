@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs;
 
 pub fn day01() -> () {
@@ -209,4 +210,62 @@ pub fn day04() -> () {
     println!("############ DAY 4 ############");
     println!("Part 1, result: {:?}", total01); // 542
     println!("Part 2, result: {:?}", total02); // 900
+}
+
+pub fn day05() -> () {
+    let content = fs::read_to_string(String::from("input/day05.txt")).unwrap();
+    let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
+
+    //         [W]         [J]     [J]
+    //         [V]     [F] [F] [S] [S]
+    //         [S] [M] [R] [W] [M] [C]
+    //         [M] [G] [W] [S] [F] [G]     [C]
+    //     [W] [P] [S] [M] [H] [N] [F]     [L]
+    //     [R] [H] [T] [D] [L] [D] [D] [B] [W]
+    //     [T] [C] [L] [H] [Q] [J] [B] [T] [N]
+    //     [G] [G] [C] [J] [P] [P] [Z] [R] [H]
+    //      1   2   3   4   5   6   7   8   9
+
+    let mut stack: HashMap<u32, &Vec<char>> = HashMap::new();
+    let v01 = &vec!['G', 'T', 'R', 'W'];
+    stack.insert(1, v01);
+    // stack.insert(2, &vec!['G', 'C', 'H', 'P', 'M', 'S', 'V', 'W']);
+    // stack.insert(3, &vec!['C', 'L', 'T', 'S', 'G', 'M']);
+    // stack.insert(4, &vec!['J', 'H', 'D', 'M', 'W', 'R', 'F']);
+    // stack.insert(5, &vec!['P', 'Q', 'L', 'H', 'S', 'W', 'F', 'J']);
+    // stack.insert(6, vec!['P', 'J', 'D', 'N', 'F', 'M', 'S']);
+    // stack.insert(7, vec!['Z', 'B', 'D', 'F', 'G', 'C', 'S', 'J']);
+    // stack.insert(8, vec!['R', 'T', 'B']);
+    // stack.insert(9, vec!['H', 'N', 'W', 'L', 'C']);
+    // vec![
+    //     vec!['G', 'T', 'R', 'W'],
+    //     vec!['G', 'C', 'H', 'P', 'M', 'S', 'V', 'W'],
+    //     vec!['C', 'L', 'T', 'S', 'G', 'M'],
+    //     vec!['J', 'H', 'D', 'M', 'W', 'R', 'F'],
+    //     vec!['P', 'Q', 'L', 'H', 'S', 'W', 'F', 'J'],
+    //     vec!['P', 'J', 'D', 'N', 'F', 'M', 'S'],
+    //     vec!['Z', 'B', 'D', 'F', 'G', 'C', 'S', 'J'],
+    //     vec!['R', 'T', 'B'],
+    //     vec!['H', 'N', 'W', 'L', 'C'],
+    // ];
+
+    for line in lines {
+        let position_from = line.find("from").unwrap();
+        let position_to = line.find("to").unwrap();
+        let qty: &u32 = &line[4..position_from].trim().parse().unwrap();
+        let from: &u32 = &line[(position_from + 5)..position_to].trim().parse().unwrap();
+        let to: &u32 = &line[(position_to + 3)..].trim().parse().unwrap();
+
+        println!("\nLine: : {:?}", line);
+        for _ in 0..*qty {
+            let item = stack.get(from).unwrap().pop().unwrap();
+            stack.get(to).unwrap().push(item);
+        }
+
+        println!("Qty: {:?}, from: {}, to: {}", qty, from, to);
+    }
+
+    println!("############ DAY 5 ############");
+    // println!("Part 1, result: {:?}", total01);
+    // println!("Part 2, result: {:?}", total02);
 }
