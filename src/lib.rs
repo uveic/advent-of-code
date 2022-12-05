@@ -237,6 +237,8 @@ pub fn day05() -> () {
     stack.insert(8, vec!['R', 'T', 'B']);
     stack.insert(9, vec!['H', 'N', 'W', 'L', 'C']);
 
+    let mut stack2 = stack.clone();
+
     for line in lines {
         let position_from = line.find("from").unwrap();
         let position_to = line.find("to").unwrap();
@@ -257,15 +259,33 @@ pub fn day05() -> () {
 
             stack.insert(*to, vt02);
         }
+
+        let item: Option<&Vec<char>> = stack2.get(from);
+        let mut i02: Vec<char> = item.unwrap().to_vec();
+
+        let mut i03: Vec<char> = i02.split_off(i02.len() - *qty as usize);
+        stack2.insert(*from, i02);
+
+        let vt01: Option<&Vec<char>> = stack2.get(to);
+        let mut vt02: Vec<char> = vt01.unwrap().to_vec();
+        vt02.append(&mut i03);
+
+        stack2.insert(*to, vt02);
     }
 
     println!("############ DAY 5 ############");
     let v: Vec<u32> = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
     print!("Part 1, result: "); // JCMHLVGMG
-    for i in v {
+    for i in &v {
         let c: &Vec<char> = stack.get(&i).unwrap();
         print!("{}", c[c.len() - 1]);
     }
     println!("");
-    // println!("Part 2, result: {:?}", total02);
+
+    print!("Part 2, result: "); // LVMRWSSPZ
+    for i in &v {
+        let c: &Vec<char> = stack2.get(&i).unwrap();
+        print!("{}", c[c.len() - 1]);
+    }
+    println!("");
 }
