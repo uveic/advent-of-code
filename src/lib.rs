@@ -170,13 +170,10 @@ pub fn day04() -> () {
         match line.chars().position(|c| c == ',') {
             Some(p) => {
                 let (left, right): (&str, &str) = line.split_at(p);
-                println!("Left: {}", left);
 
                 match left.chars().position(|c| c == '-') {
                     Some(p) => {
                         let (x1, x2): (&str, &str) = left.split_at(p);
-                        println!("Left 01: {}", x1);
-                        println!("Left 02: {}", x2.trim_start_matches('-'));
 
                         a1 = x1.parse().unwrap();
                         a2 = x2.trim_start_matches('-').parse().unwrap();
@@ -184,19 +181,21 @@ pub fn day04() -> () {
                     None => (),
                 }
 
-                println!("Right: {}", right.trim_start_matches(','));
                 match right.trim_start_matches(',').chars().position(|d| d == '-') {
                     Some(p) => {
                         let (x1, x2): (&str, &str) = right.trim_start_matches(',').split_at(p);
-                        println!("Right 01: {}", x1);
-                        println!("Right 02: {}", x2.trim_start_matches('-'));
                         b1 = x1.parse().unwrap();
                         b2 = x2.trim_start_matches('-').parse().unwrap();
                     },
                     None => (),
                 }
 
-                total01 += if (a1 <= a2 && b1 <= b2) || (a2 <= a1 && b2 <= b1) { 1 } else { 0 };
+                // Is left or right contained in the other side
+                total01 += if (a1 >= b1 && a1 <= b2 && a2 >= b1 && a2 <= b2)
+                    || (b1 >= a1 && b1 <= a2 && b2 >= a1 && b2 <= a2)
+                    { 1 }
+                    else
+                    { 0 };
             },
             None => (),
         };
@@ -204,6 +203,6 @@ pub fn day04() -> () {
     }
 
     println!("############ DAY 4 ############");
-    println!("Part 1, result: {:?}", total01);
+    println!("Part 1, result: {:?}", total01); // 542
     println!("Part 2, result: {:?}", total02);
 }
