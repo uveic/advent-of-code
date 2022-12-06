@@ -289,3 +289,66 @@ pub fn day05() -> () {
     }
     println!("");
 }
+
+pub fn day06() -> () {
+    #[derive(Debug)]
+    struct Marker {
+        first: char,
+        second: char,
+        third: char,
+        fourth: char,
+    }
+
+    fn print_marker(marker: &Marker, pos: &usize) -> () {
+        println!("{:04?} ({}{}{}{})", pos, marker.first, marker.second, marker.third, marker.fourth);
+    }
+
+    fn new_char(marker: &mut Marker, c: char) -> () {
+        marker.first = marker.second;
+        marker.second = marker.third;
+        marker.third = marker.fourth;
+        marker.fourth = c;
+    }
+
+    fn is_marker(marker: &Marker) -> bool {
+        if marker.first != '-'
+            && marker.second != '-'
+            && marker.third != '-'
+            && marker.fourth != '-'
+            && marker.first != marker.second
+            && marker.first != marker.third
+            && marker.first != marker.fourth
+            && marker.second != marker.third
+            && marker.second != marker.fourth
+            && marker.third != marker.fourth
+            { true }
+        else
+            { false }
+    }
+
+    let content = fs::read_to_string(String::from("input/day06.txt")).unwrap();
+    let line = content.trim();
+
+    let mut m = Marker {
+        first: '-',
+        second: '-',
+        third: '-',
+        fourth: '-',
+    };
+
+    println!("############ DAY 6 ############");
+
+    let mut pos: usize = 0;
+    for x in line.chars() {
+        if is_marker(&m) {
+            print!("Part 1, result: "); // 1100
+            print_marker(&m, &pos);
+            break;
+        }
+
+        new_char(&mut m, x);
+        pos += 1;
+    }
+
+    // println!("Part 2, result: {:?}", total02);
+}
