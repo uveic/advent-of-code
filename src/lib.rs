@@ -326,6 +326,30 @@ pub fn day06() -> () {
             { false }
     }
 
+    fn is_message_marker(me: &Vec<char>) -> bool
+    {
+        for (p, c) in me.iter().enumerate() {
+            for i in p+1..14 {
+                if c == &me[i] {
+                    return false
+                }
+            }
+        }
+
+        true
+    }
+
+    fn new_message_char(me: Vec<char>, c: char) -> Vec<char> {
+        let (_, me) = me.split_first().unwrap();
+        let mut me = me.to_vec();
+        me.push(c);
+        me.to_vec()
+    }
+
+    fn print_message_maker(me: &Vec<char>, pos: &usize) -> () {
+        println!("{} ({})", pos, me.iter().cloned().collect::<String>());
+    }
+
     let content = fs::read_to_string(String::from("input/day06.txt")).unwrap();
     let line = content.trim();
 
@@ -335,20 +359,27 @@ pub fn day06() -> () {
         third: '-',
         fourth: '-',
     };
+    let mut me: Vec<char> = vec!['-'; 14];
 
     println!("############ DAY 6 ############");
 
+    let mut part1: bool = false;
     let mut pos: usize = 0;
     for x in line.chars() {
-        if is_marker(&m) {
+        if is_marker(&m) && !part1 {
             print!("Part 1, result: "); // 1100
             print_marker(&m, &pos);
+            part1 = true;
+        }
+
+        if is_message_marker(&me) {
+            print!("Part 2, result: "); // 2421
+            print_message_maker(&me, &pos);
             break;
         }
 
+        me = new_message_char(me, x);
         new_char(&mut m, x);
         pos += 1;
     }
-
-    // println!("Part 2, result: {:?}", total02);
 }
