@@ -391,11 +391,11 @@ pub fn day07() -> () {
     fn increase_size(d: &mut HashMap<String, Directory>, name: &String, size: u32) -> () {
         let new_dir: Directory = match d.get(name) {
             Some(dir) => {
-                println!("Before: {} => {}", dir.name, dir.size);
                 Directory {
                     name: dir.name.to_string(),
                     size: dir.size + size,
                     parent: dir.parent.clone(),
+                    full_path: dir.full_path.to_owned(),
                 }
             },
             None => {
@@ -403,31 +403,56 @@ pub fn day07() -> () {
                     name: name.to_string(),
                     size: 0,
                     parent: None,
+                    full_path: String::from("/".to_owned() + name),
                 }
             }
         };
 
-        println!("After: {} => {}", new_dir.name, new_dir.size);
         d.insert(name.to_string(), new_dir, );
     }
 
-    fn new_directory(name: String, parent: Option<String>) -> Directory {
+    fn new_directory(name: String, current: &Directory) -> Directory {
+        let full_path = if current.full_path == "/" {
+            String::from("/".to_owned())
+        } else {
+            String::from(current.full_path.to_owned() + "/" + &name)
+        };
+
         Directory {
             name,
             size: 0,
-            parent,
+            parent: Some(current.name.to_owned()),
+            full_path,
         }
     }
 
-    #[derive(Debug)]
+    fn move_up(current: &Directory) -> Directory {
+        let pos = current.full_path.rfind("/").unwrap_or(current.full_path.len());
+        let full_path = current.full_path.get(..pos).unwrap().to_owned();
+
+        Directory {
+            name: current.name.to_owned(),
+            size: current.size,
+            parent: current.parent.to_owned(),
+            full_path,
+        }
+    }
+
+    #[derive(Debug, Clone)]
     struct Directory {
         name: String,
         size: u32,
         parent: Option<String>,
+        full_path: String,
     }
 
     let mut directories: HashMap<String, Directory> = HashMap::new();
-    let mut current_directory: String = String::from("/");
+    let mut current_dir: Directory = Directory {
+        name: "/".to_string(),
+        size: 0,
+        parent: None,
+        full_path: "/".to_string(),
+    };
 
     for line in lines {
         if line.len() == 4 && &line[0..4] == "$ ls"
@@ -437,35 +462,25 @@ pub fn day07() -> () {
         }
 
         if line.len() == 7 && &line[0..7] == "$ cd .." {
-            let dir = directories.get(&current_directory);
-            if let Some(d) = dir {
-                current_directory = if let Some(p) = &d.parent {
-                    p.to_string()
-                } else {
-                    "/".to_string()
-                }
-            };
-
+            current_dir = move_up(&current_dir);
             continue;
         }
 
         if &line[0..4] == "$ cd" {
             let name: &str = &line[4..].trim();
-            let new = new_directory(
+            current_dir = new_directory(
                 name.to_string(),
-                Some(current_directory),
+                &current_dir,
             );
 
-            current_directory = new.name.to_string();
-            directories.insert(name.to_string(), new);
+            directories.insert(name.to_string(), current_dir.clone());
 
             continue;
         }
 
         let position_space = line.find(" ").unwrap();
         if let Ok(s) = &line[0..position_space].trim().parse::<u32>() {
-            println!("File: {:?}, size: {}", &line[position_space..].trim(), s);
-            increase_size(&mut directories, &current_directory, *s);
+            increase_size(&mut directories, &current_dir.name, *s);
         }
     }
 
