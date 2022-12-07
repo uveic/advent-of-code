@@ -388,71 +388,33 @@ pub fn day07() -> () {
     let content = fs::read_to_string(String::from("input/day07.txt")).unwrap();
     let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
 
-    fn increase_size(d: &mut HashMap<String, Directory>, name: &String, size: u32) -> () {
-        let new_dir: Directory = match d.get(name) {
-            Some(dir) => {
-                Directory {
-                    name: dir.name.to_string(),
-                    size: dir.size + size,
-                    parent: dir.parent.clone(),
-                    full_path: dir.full_path.to_owned(),
-                }
-            },
-            None => {
-                Directory {
-                    name: name.to_string(),
-                    size: 0,
-                    parent: None,
-                    full_path: String::from("/".to_owned() + name),
-                }
-            }
+    fn increase_size(d: &mut HashMap<String, i32>, name: &String, size: i32) -> () {
+        let new_size: i32 = match d.get(name) {
+            Some(s) => { s + size },
+            None => { size }
         };
 
-        d.insert(name.to_string(), new_dir, );
+        d.insert(name.to_string(), new_size);
     }
 
-    fn new_directory(name: String, current: &Directory) -> Directory {
-        let full_path = if current.full_path == "/" {
-            String::from("/".to_owned())
+    fn new_directory(name: String, current: &String) -> String {
+        if &name == "/" {
+            "/".to_string()
+        } else if current == "/" {
+            String::from("/".to_owned() + &name)
         } else {
-            String::from(current.full_path.to_owned() + "/" + &name)
-        };
-
-        Directory {
-            name,
-            size: 0,
-            parent: Some(current.name.to_owned()),
-            full_path,
+            String::from(current.to_owned() + "/" + &name)
         }
     }
 
-    fn move_up(current: &Directory) -> Directory {
-        let pos = current.full_path.rfind("/").unwrap_or(current.full_path.len());
-        let full_path = current.full_path.get(..pos).unwrap().to_owned();
-
-        Directory {
-            name: current.name.to_owned(),
-            size: current.size,
-            parent: current.parent.to_owned(),
-            full_path,
-        }
+    fn move_up(full_path: &String) -> String {
+        let pos = full_path.rfind("/").unwrap_or(full_path.len());
+        let new = full_path.get(..pos).unwrap().to_owned();
+        if new.len() == 0 { "/".to_string() } else { new }
     }
 
-    #[derive(Debug, Clone)]
-    struct Directory {
-        name: String,
-        size: u32,
-        parent: Option<String>,
-        full_path: String,
-    }
-
-    let mut directories: HashMap<String, Directory> = HashMap::new();
-    let mut current_dir: Directory = Directory {
-        name: "/".to_string(),
-        size: 0,
-        parent: None,
-        full_path: "/".to_string(),
-    };
+    let mut directories: HashMap<String, i32> = HashMap::new();
+    let mut current_dir: String = "/".to_string();
 
     for line in lines {
         if line.len() == 4 && &line[0..4] == "$ ls"
@@ -473,17 +435,28 @@ pub fn day07() -> () {
                 &current_dir,
             );
 
-            directories.insert(name.to_string(), current_dir.clone());
+            directories.get(name).get_or_insert(&0);
 
             continue;
         }
 
         let position_space = line.find(" ").unwrap();
-        if let Ok(s) = &line[0..position_space].trim().parse::<u32>() {
-            increase_size(&mut directories, &current_dir.name, *s);
+        if let Ok(s) = &line[0..position_space].trim().parse::<i32>() {
+            let mut dir = current_dir.to_string();
+            loop {
+                increase_size(&mut directories, &dir, *s);
+
+                if dir == "/".to_string() {
+                    break;
+                }
+
+                dir = move_up(&dir);
+            }
         }
     }
 
+    let total01: i32 = directories.into_iter().map(|(_, v)| if v <= 100000 { v } else  { 0 }).sum();
+
     println!("############ DAY 7 ############");
-    println!("{:#?}", directories);
+    println!("Part 1, result: {:?}", total01);
 }
