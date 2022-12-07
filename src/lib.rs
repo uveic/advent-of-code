@@ -389,23 +389,26 @@ pub fn day07() -> () {
     let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
 
     fn increase_size(d: &mut HashMap<String, Directory>, name: &String, size: u32) -> () {
-        match d.get(name) {
+        let new_dir: Directory = match d.get(name) {
             Some(dir) => {
-                *dir.size = dir.size + size;
+                println!("Before: {} => {}", dir.name, dir.size);
+                Directory {
+                    name: dir.name.to_string(),
+                    size: dir.size + size,
+                    parent: dir.parent.clone(),
+                }
             },
             None => {
-                d.insert(
-                    name.to_string(),
-                    Directory {
-                        name: name.to_string(),
-                        size: 0,
-                        parent: None,
-                    }
-                );
+                Directory {
+                    name: name.to_string(),
+                    size: 0,
+                    parent: None,
+                }
             }
         };
 
-        ()
+        println!("After: {} => {}", new_dir.name, new_dir.size);
+        d.insert(name.to_string(), new_dir, );
     }
 
     fn new_directory(name: String, parent: Option<String>) -> Directory {
@@ -436,8 +439,14 @@ pub fn day07() -> () {
         if line.len() == 7 && &line[0..7] == "$ cd .." {
             let dir = directories.get(&current_directory);
             if let Some(d) = dir {
-                current_directory = d.parent.unwrap_or("/".to_string())
+                current_directory = if let Some(p) = &d.parent {
+                    p.to_string()
+                } else {
+                    "/".to_string()
+                }
             };
+
+            continue;
         }
 
         if &line[0..4] == "$ cd" {
@@ -461,5 +470,5 @@ pub fn day07() -> () {
     }
 
     println!("############ DAY 7 ############");
-    // println!("{:#?}", directories);
+    println!("{:#?}", directories);
 }
