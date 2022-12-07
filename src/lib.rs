@@ -383,3 +383,83 @@ pub fn day06() -> () {
         pos += 1;
     }
 }
+
+pub fn day07() -> () {
+    let content = fs::read_to_string(String::from("input/day07.txt")).unwrap();
+    let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
+
+    fn increase_size(d: &mut HashMap<String, Directory>, name: &String, size: u32) -> () {
+        match d.get(name) {
+            Some(dir) => {
+                *dir.size = dir.size + size;
+            },
+            None => {
+                d.insert(
+                    name.to_string(),
+                    Directory {
+                        name: name.to_string(),
+                        size: 0,
+                        parent: None,
+                    }
+                );
+            }
+        };
+
+        ()
+    }
+
+    fn new_directory(name: String, parent: Option<String>) -> Directory {
+        Directory {
+            name,
+            size: 0,
+            parent,
+        }
+    }
+
+    #[derive(Debug)]
+    struct Directory {
+        name: String,
+        size: u32,
+        parent: Option<String>,
+    }
+
+    let mut directories: HashMap<String, Directory> = HashMap::new();
+    let mut current_directory: String = String::from("/");
+
+    for line in lines {
+        if line.len() == 4 && &line[0..4] == "$ ls"
+            || line.len() == 6 && &line[0..6] == "$ cd /"
+        {
+            continue;
+        }
+
+        if line.len() == 7 && &line[0..7] == "$ cd .." {
+            let dir = directories.get(&current_directory);
+            if let Some(d) = dir {
+                current_directory = d.parent.unwrap_or("/".to_string())
+            };
+        }
+
+        if &line[0..4] == "$ cd" {
+            let name: &str = &line[4..].trim();
+            let new = new_directory(
+                name.to_string(),
+                Some(current_directory),
+            );
+
+            current_directory = new.name.to_string();
+            directories.insert(name.to_string(), new);
+
+            continue;
+        }
+
+        let position_space = line.find(" ").unwrap();
+        if let Ok(s) = &line[0..position_space].trim().parse::<u32>() {
+            println!("File: {:?}, size: {}", &line[position_space..].trim(), s);
+            increase_size(&mut directories, &current_directory, *s);
+        }
+    }
+
+    println!("############ DAY 7 ############");
+    // println!("{:#?}", directories);
+}
