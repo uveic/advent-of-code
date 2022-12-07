@@ -455,8 +455,24 @@ pub fn day07() -> () {
         }
     }
 
-    let total01: i32 = directories.into_iter().map(|(_, v)| if v <= 100000 { v } else  { 0 }).sum();
+    let total_space = directories.get("/").unwrap().clone();
+    let free_space = 70_000_000 - total_space;
+    let needed_space = 30_000_000 - free_space;
+
+    let mut total01: i32 = 0;
+    let mut total02: i32 = 70_000_000;
+
+    for d in directories {
+        if d.1 <= 100000 {
+            total01 += d.1;
+        }
+
+        if d.1 > needed_space && (d.1 - needed_space).abs() < total02 && d.1 < total02 {
+            total02 = d.1;
+        }
+    }
 
     println!("############ DAY 7 ############");
-    println!("Part 1, result: {:?}", total01);
+    println!("Part 1, result: {:?}", total01); // 1_582_412
+    println!("Part 2, result: {:?}", total02); // 3_696_336
 }
