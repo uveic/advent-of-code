@@ -506,6 +506,65 @@ pub fn day08() -> () {
             let mut right = true;
             let mut up = true;
             let mut down = true;
+            let mut tree_view = 1;
+            let mut view = 0;
+
+            'check10: for i in (0..tree).rev() {
+                if row[i as usize] < row[tree as usize] {
+                    view += 1;
+                }
+
+                if row[i as usize] >= row[tree as usize] {
+                    view += 1;
+                    break 'check10;
+                }
+            }
+            tree_view *= view;
+            view = 0;
+
+            'check20: for i in tree+1..=row_len {
+                if row[i as usize] < row[tree as usize] {
+                    view += 1;
+                }
+
+                if row[i as usize] >= row[tree as usize] {
+                    view += 1;
+                    break 'check20;
+                }
+            }
+            tree_view *= view;
+            view = 0;
+
+            'check30: for i in (0..col_pos).rev() {
+                let check_row: Vec<u32> = trees.get(&(i as i32)).unwrap().to_vec();
+                if check_row[tree as usize] < row[tree as usize] {
+                    view += 1;
+                }
+
+                if check_row[tree as usize] >= row[tree as usize] {
+                    view += 1;
+                    break 'check30;
+                }
+            }
+            tree_view *= view;
+            view = 0;
+
+            'check40: for i in col_pos+1..=column_len {
+                let check_row: Vec<u32> = trees.get(&(i as i32)).unwrap().to_vec();
+                if check_row[tree as usize] < row[tree as usize] {
+                    view += 1;
+                }
+
+                if check_row[tree as usize] >= row[tree as usize] {
+                    view += 1;
+                    break 'check40;
+                }
+            }
+            tree_view *= view;
+
+            if tree_view > total02 {
+                total02 = tree_view;
+            }
 
             if tree == 0 || tree == row_len || col_pos == 0 || col_pos == column_len {
                 total01 += 1;
@@ -519,21 +578,11 @@ pub fn day08() -> () {
                 }
             }
 
-            if left {
-                total01 += 1;
-                continue 'tree;
-            }
-
             'check2: for i in tree+1..=row_len {
                 if row[i as usize] >= row[tree as usize] {
                     right = false;
                     break 'check2;
                 }
-            }
-
-            if right {
-                total01 += 1;
-                continue 'tree;
             }
 
             'check3: for i in 0..col_pos {
@@ -544,12 +593,6 @@ pub fn day08() -> () {
                 }
             }
 
-            if up {
-                total01 += 1;
-                // println!("Tree ({}): {}-{} :: left: {}, right: {}, up: {}, down: {}", row[tree as usize], col_pos, tree, left, right, up, down);
-                continue 'tree;
-            }
-
             'check4: for i in col_pos+1..=column_len {
                 let check_row: Vec<u32> = trees.get(&(i as i32)).unwrap().to_vec();
                 if check_row[tree as usize] >= row[tree as usize] {
@@ -558,12 +601,12 @@ pub fn day08() -> () {
                 }
             }
 
-            if down {
+            if left || right || up || down {
                 total01 += 1;
             }
         }
     }
 
     println!("Part 1, result: {:?}", total01); // 1870
-    println!("Part 2, result: {:?}", total02);
+    println!("Part 2, result: {:?}", total02); // 517_440
 }
