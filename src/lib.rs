@@ -476,3 +476,94 @@ pub fn day07() -> () {
     println!("Part 1, result: {:?}", total01); // 1_582_412
     println!("Part 2, result: {:?}", total02); // 3_696_336
 }
+
+pub fn day08() -> () {
+    let content = fs::read_to_string(String::from("input/day08.txt")).unwrap();
+    let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
+
+    println!("############ DAY 8 ############");
+
+    let mut total01: i32 = 0;
+    let mut total02: i32 = 0;
+
+    let mut trees: HashMap<i32, Vec<u32>> = HashMap::new();
+    let mut total = 0;
+
+    for line in lines {
+        let row: Vec<u32> = line.chars().map(|c| c.to_digit(10).unwrap()).collect();
+        trees.insert(total, row);
+        total += 1;
+    }
+
+    let column_len: i32 = total - 1;
+
+    for col_pos in 0..=column_len {
+        let row: Vec<u32> = trees.get(&col_pos).unwrap().to_vec();
+        let row_len = row.len() - 1;
+
+        'tree: for tree in 0..=row_len {
+            let mut left = true;
+            let mut right = true;
+            let mut up = true;
+            let mut down = true;
+
+            if tree == 0 || tree == row_len || col_pos == 0 || col_pos == column_len {
+                total01 += 1;
+                continue 'tree;
+            }
+
+            'check1: for i in 0..tree {
+                if row[i as usize] >= row[tree as usize] {
+                    left = false;
+                    break 'check1;
+                }
+            }
+
+            if left {
+                total01 += 1;
+                continue 'tree;
+            }
+
+            'check2: for i in tree+1..=row_len {
+                if row[i as usize] >= row[tree as usize] {
+                    right = false;
+                    break 'check2;
+                }
+            }
+
+            if right {
+                total01 += 1;
+                continue 'tree;
+            }
+
+            'check3: for i in 0..col_pos {
+                let check_row: Vec<u32> = trees.get(&(i as i32)).unwrap().to_vec();
+                if check_row[tree as usize] >= row[tree as usize] {
+                    up = false;
+                    break 'check3;
+                }
+            }
+
+            if up {
+                total01 += 1;
+                // println!("Tree ({}): {}-{} :: left: {}, right: {}, up: {}, down: {}", row[tree as usize], col_pos, tree, left, right, up, down);
+                continue 'tree;
+            }
+
+            'check4: for i in col_pos+1..=column_len {
+                let check_row: Vec<u32> = trees.get(&(i as i32)).unwrap().to_vec();
+                if check_row[tree as usize] >= row[tree as usize] {
+                    down = false;
+                    break 'check4;
+                }
+            }
+
+            if down {
+                total01 += 1;
+            }
+        }
+    }
+
+    println!("Part 1, result: {:?}", total01); // 1870
+    println!("Part 2, result: {:?}", total02);
+}
