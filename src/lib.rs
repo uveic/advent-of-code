@@ -107,7 +107,11 @@ pub fn day02() -> () {
 pub fn day03() -> () {
     fn get_value(c: char) -> u32 {
         let ascii = c as u32;
-        if ascii >= 97 {ascii - 96} else {ascii - 38}
+        if ascii >= 97 {
+            ascii - 96
+        } else {
+            ascii - 38
+        }
     }
 
     let content = fs::read_to_string(String::from("input/day03.txt")).unwrap();
@@ -133,18 +137,16 @@ pub fn day03() -> () {
         if last_three.len() == 3 {
             for c in last_three[0].chars() {
                 match last_three[1].chars().position(|t| t == c) {
-                    Some(_) => {
-                        match last_three[2].chars().position(|t| t == c) {
-                            Some(_) => {
-                                total02 += get_value(c);
-                                break;
-                            },
-                            None => (),
+                    Some(_) => match last_three[2].chars().position(|t| t == c) {
+                        Some(_) => {
+                            total02 += get_value(c);
+                            break;
                         }
+                        None => (),
                     },
                     None => (),
                 };
-            };
+            }
 
             last_three = Vec::new();
         }
@@ -178,7 +180,7 @@ pub fn day04() -> () {
 
                         a1 = x1.parse().unwrap();
                         a2 = x2.trim_start_matches('-').parse().unwrap();
-                    },
+                    }
                     None => (),
                 }
 
@@ -187,24 +189,25 @@ pub fn day04() -> () {
                         let (x1, x2): (&str, &str) = right.trim_start_matches(',').split_at(p);
                         b1 = x1.parse().unwrap();
                         b2 = x2.trim_start_matches('-').parse().unwrap();
-                    },
+                    }
                     None => (),
                 }
 
                 // Is left or right contained in the other side
                 total01 += if (a1 >= b1 && a1 <= b2 && a2 >= b1 && a2 <= b2)
                     || (b1 >= a1 && b1 <= a2 && b2 >= a1 && b2 <= a2)
-                    { 1 }
-                    else
-                    { 0 };
+                {
+                    1
+                } else {
+                    0
+                };
 
                 let low = if a1 > b1 { a1 } else { b1 };
                 let high = if a2 > b2 { b2 } else { a2 };
                 total02 += if low <= high { 1 } else { 0 };
-            },
+            }
             None => (),
         };
-
     }
 
     println!("############ DAY 4 ############");
@@ -243,7 +246,10 @@ pub fn day05() -> () {
         let position_from = line.find("from").unwrap();
         let position_to = line.find("to").unwrap();
         let qty: &u32 = &line[4..position_from].trim().parse().unwrap();
-        let from: &u32 = &line[(position_from + 5)..position_to].trim().parse().unwrap();
+        let from: &u32 = &line[(position_from + 5)..position_to]
+            .trim()
+            .parse()
+            .unwrap();
         let to: &u32 = &line[(position_to + 3)..].trim().parse().unwrap();
 
         for _ in 0..*qty {
@@ -300,7 +306,10 @@ pub fn day06() -> () {
     }
 
     fn print_marker(marker: &Marker, pos: &usize) -> () {
-        println!("{:04?} ({}{}{}{})", pos, marker.first, marker.second, marker.third, marker.fourth);
+        println!(
+            "{:04?} ({}{}{}{})",
+            pos, marker.first, marker.second, marker.third, marker.fourth
+        );
     }
 
     fn new_char(marker: &mut Marker, c: char) -> () {
@@ -321,17 +330,18 @@ pub fn day06() -> () {
             && marker.second != marker.third
             && marker.second != marker.fourth
             && marker.third != marker.fourth
-            { true }
-        else
-            { false }
+        {
+            true
+        } else {
+            false
+        }
     }
 
-    fn is_message_marker(me: &Vec<char>) -> bool
-    {
+    fn is_message_marker(me: &Vec<char>) -> bool {
         for (p, c) in me.iter().enumerate() {
-            for i in p+1..14 {
+            for i in p + 1..14 {
                 if c == &me[i] {
-                    return false
+                    return false;
                 }
             }
         }
@@ -390,8 +400,8 @@ pub fn day07() -> () {
 
     fn increase_size(d: &mut HashMap<String, i32>, name: &String, size: i32) -> () {
         let new_size: i32 = match d.get(name) {
-            Some(s) => { s + size },
-            None => { size }
+            Some(s) => s + size,
+            None => size,
         };
 
         d.insert(name.to_string(), new_size);
@@ -410,16 +420,18 @@ pub fn day07() -> () {
     fn move_up(full_path: &String) -> String {
         let pos = full_path.rfind("/").unwrap_or(full_path.len());
         let new = full_path.get(..pos).unwrap().to_owned();
-        if new.len() == 0 { "/".to_string() } else { new }
+        if new.len() == 0 {
+            "/".to_string()
+        } else {
+            new
+        }
     }
 
     let mut directories: HashMap<String, i32> = HashMap::new();
     let mut current_dir: String = "/".to_string();
 
     for line in lines {
-        if line.len() == 4 && &line[0..4] == "$ ls"
-            || line.len() == 6 && &line[0..6] == "$ cd /"
-        {
+        if line.len() == 4 && &line[0..4] == "$ ls" || line.len() == 6 && &line[0..6] == "$ cd /" {
             continue;
         }
 
@@ -430,10 +442,7 @@ pub fn day07() -> () {
 
         if &line[0..4] == "$ cd" {
             let name: &str = &line[4..].trim();
-            current_dir = new_directory(
-                name.to_string(),
-                &current_dir,
-            );
+            current_dir = new_directory(name.to_string(), &current_dir);
 
             directories.get(name).get_or_insert(&0);
 
@@ -522,7 +531,7 @@ pub fn day08() -> () {
             tree_view *= view;
             view = 0;
 
-            'check20: for i in tree+1..=row_len {
+            'check20: for i in tree + 1..=row_len {
                 if row[i as usize] < row[tree as usize] {
                     view += 1;
                 }
@@ -549,7 +558,7 @@ pub fn day08() -> () {
             tree_view *= view;
             view = 0;
 
-            'check40: for i in col_pos+1..=column_len {
+            'check40: for i in col_pos + 1..=column_len {
                 let check_row: Vec<u32> = trees.get(&(i as i32)).unwrap().to_vec();
                 if check_row[tree as usize] < row[tree as usize] {
                     view += 1;
@@ -578,7 +587,7 @@ pub fn day08() -> () {
                 }
             }
 
-            'check2: for i in tree+1..=row_len {
+            'check2: for i in tree + 1..=row_len {
                 if row[i as usize] >= row[tree as usize] {
                     right = false;
                     break 'check2;
@@ -593,7 +602,7 @@ pub fn day08() -> () {
                 }
             }
 
-            'check4: for i in col_pos+1..=column_len {
+            'check4: for i in col_pos + 1..=column_len {
                 let check_row: Vec<u32> = trees.get(&(i as i32)).unwrap().to_vec();
                 if check_row[tree as usize] >= row[tree as usize] {
                     down = false;
@@ -609,4 +618,101 @@ pub fn day08() -> () {
 
     println!("Part 1, result: {:?}", total01); // 1870
     println!("Part 2, result: {:?}", total02); // 517_440
+}
+
+pub fn day09() -> () {
+    let content = fs::read_to_string(String::from("input/day09.txt")).unwrap();
+    let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
+
+    #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+    struct Point(i32, i32);
+
+    fn move_right(h: &mut Point, t: &mut Point) -> () {
+        h.0 += 1;
+
+        if h.1 == t.1 && h.0 - t.0 > 1 {
+            t.0 = t.0 + 1;
+        } else if h.1 != t.1 && h.0 - t.0 > 1 {
+            t.1 = h.1;
+            t.0 += 1;
+        }
+    }
+
+    fn move_left(h: &mut Point, t: &mut Point) -> () {
+        h.0 -= 1;
+
+        if h.1 == t.1 && t.0 - h.0 > 1 {
+            t.0 -= 1;
+        } else if h.1 != t.1 && t.0 - h.0 > 1 {
+            t.1 = h.1;
+            t.0 -= 1;
+        }
+    }
+
+    fn move_up(h: &mut Point, t: &mut Point) -> () {
+        h.1 += 1;
+
+        if h.0 == t.0 && h.1 - t.1 > 1 {
+            t.1 += 1;
+        } else if h.0 != t.0 && h.1 - t.1 > 1 {
+            t.0 = h.0;
+            t.1 += 1;
+        }
+    }
+
+    fn move_down(h: &mut Point, t: &mut Point) -> () {
+        h.1 -= 1;
+
+        if h.0 == t.0 && t.1 - h.1 > 1 {
+            t.1 -= 1;
+        } else if h.0 != t.0 && t.1 - h.1 > 1 {
+            t.0 = h.0;
+            t.1 -= 1;
+        }
+    }
+
+    fn add_position(tail: &Point, tail_all: &mut HashMap<Point, bool>) -> () {
+        match tail_all.get(tail) {
+            Some(_) => (),
+            None => {
+                tail_all.insert(tail.clone(), true);
+            }
+        };
+    }
+
+    println!("############ DAY 9 ############");
+
+    let mut head: Point = Point(0, 0);
+    let mut tail: Point = Point(0, 0);
+    let mut tail_all: HashMap<Point, bool> = HashMap::new();
+
+    tail_all.insert(tail.clone(), true);
+
+    for line in lines {
+        let (left, right) = line.split_at(1);
+        let direction: char = left.trim().parse().unwrap();
+        let count: i32 = right.trim().parse().unwrap();
+
+        // println!("{} {}, H: {}-{}, T: {}-{}", direction, count, head.0, head.1, tail.0, tail.1);
+
+        for _ in 0..count {
+            match direction {
+                'R' => move_right(&mut head, &mut tail),
+                'L' => move_left(&mut head, &mut tail),
+                'U' => move_up(&mut head, &mut tail),
+                'D' => move_down(&mut head, &mut tail),
+                _ => {
+                    println!("Unexpected move: {}", direction)
+                }
+            };
+
+            add_position(&tail, &mut tail_all);
+        }
+    }
+
+    let total01 = tail_all.len();
+    let total02: i32 = 0;
+
+    println!("Part 1, result: {:?}", total01); // 6470
+    println!("Part 2, result: {:?}", total02);
 }
