@@ -627,66 +627,103 @@ pub fn day09() -> () {
     #[derive(Debug, Clone, PartialEq, Eq, Hash)]
     struct Point(i32, i32);
 
-    fn move_right(h: &mut Point, t: &mut Point) -> () {
-        h.0 += 1;
+    fn move_right(t: &mut Vec<Point>, p: i32) -> () {
+        let p = p as usize;
 
-        if h.1 == t.1 && h.0 - t.0 > 1 {
-            t.0 = t.0 + 1;
-        } else if h.1 != t.1 && h.0 - t.0 > 1 {
-            t.1 = h.1;
-            t.0 += 1;
+        t[p].0 += 1;
+
+        if t[p].1 == t[p + 1].1 && t[p].0 - t[p + 1].0 > 1 {
+            t[p + 1].0 = t[p + 1].0 + 1;
+        } else if t[p].1 != t[p + 1].1 && t[p].0 - t[p + 1].0 > 1 {
+            t[p + 1].1 = t[p].1;
+            t[p + 1].0 += 1;
         }
     }
 
-    fn move_left(h: &mut Point, t: &mut Point) -> () {
-        h.0 -= 1;
+    fn move_left(t: &mut Vec<Point>, p: i32) -> () {
+        let p = p as usize;
 
-        if h.1 == t.1 && t.0 - h.0 > 1 {
-            t.0 -= 1;
-        } else if h.1 != t.1 && t.0 - h.0 > 1 {
-            t.1 = h.1;
-            t.0 -= 1;
+        t[p].0 -= 1;
+
+        if t[p].1 == t[p + 1].1 && t[p + 1].0 - t[p].0 > 1 {
+            t[p + 1].0 -= 1;
+        } else if t[p].1 != t[p + 1].1 && t[p + 1].0 - t[p].0 > 1 {
+            t[p + 1].1 = t[p].1;
+            t[p + 1].0 -= 1;
         }
     }
 
-    fn move_up(h: &mut Point, t: &mut Point) -> () {
-        h.1 += 1;
+    fn move_up(t: &mut Vec<Point>, p: i32) -> () {
+        let p = p as usize;
 
-        if h.0 == t.0 && h.1 - t.1 > 1 {
-            t.1 += 1;
-        } else if h.0 != t.0 && h.1 - t.1 > 1 {
-            t.0 = h.0;
-            t.1 += 1;
+        t[p].1 += 1;
+
+        if t[p].0 == t[p + 1].0 && t[p].1 - t[p + 1].1 > 1 {
+            t[p + 1].1 += 1;
+        } else if t[p].0 != t[p + 1].0 && t[p].1 - t[p + 1].1 > 1 {
+            t[p + 1].0 = t[p].0;
+            t[p + 1].1 += 1;
         }
     }
 
-    fn move_down(h: &mut Point, t: &mut Point) -> () {
-        h.1 -= 1;
+    fn move_down(t: &mut Vec<Point>, p: i32) -> () {
+        let p = p as usize;
 
-        if h.0 == t.0 && t.1 - h.1 > 1 {
-            t.1 -= 1;
-        } else if h.0 != t.0 && t.1 - h.1 > 1 {
-            t.0 = h.0;
-            t.1 -= 1;
+        t[p].1 -= 1;
+
+        if t[p].0 == t[p + 1].0 && t[p + 1].1 - t[p].1 > 1 {
+            t[p + 1].1 -= 1;
+        } else if t[p].0 != t[p + 1].0 && t[p + 1].1 - t[p].1 > 1 {
+            t[p + 1].0 = t[p].0;
+            t[p + 1].1 -= 1;
         }
     }
 
-    fn add_position(tail: &Point, tail_all: &mut HashMap<Point, bool>) -> () {
-        match tail_all.get(tail) {
+    fn add_position(point: &Point, tail: &mut HashMap<Point, bool>) -> () {
+        match tail.get(point) {
             Some(_) => (),
             None => {
-                tail_all.insert(tail.clone(), true);
+                tail.insert(point.clone(), true);
             }
         };
     }
 
+    fn tail_loop(tail: &mut Vec<Point>, direction: char) -> () {
+        for i in 0..tail.len() - 1 {
+            match direction {
+                'R' => move_right(tail, i as i32),
+                'L' => move_left(tail, i as i32),
+                'U' => move_up(tail, i as i32),
+                'D' => move_down(tail, i as i32),
+                _ => {
+                    println!("Unexpected move: {}", direction)
+                }
+            };
+        }
+    }
+
     println!("############ DAY 9 ############");
 
-    let mut head: Point = Point(0, 0);
-    let mut tail: Point = Point(0, 0);
-    let mut tail_all: HashMap<Point, bool> = HashMap::new();
+    let mut short_tail_all: HashMap<Point, bool> = HashMap::new();
+    let mut long_tail_all: HashMap<Point, bool> = HashMap::new();
 
-    tail_all.insert(tail.clone(), true);
+    let mut short_tail: Vec<Point> = vec![Point(0, 0), Point(0, 0)];
+
+    let mut long_tail: Vec<Point> = vec![
+        Point(0, 0),
+        Point(0, 0),
+        Point(0, 0),
+        Point(0, 0),
+        Point(0, 0),
+        Point(0, 0),
+        Point(0, 0),
+        Point(0, 0),
+        Point(0, 0),
+        Point(0, 0),
+    ];
+
+    short_tail_all.insert(Point(0, 0), true);
+    long_tail_all.insert(Point(0, 0), true);
 
     for line in lines {
         let (left, right) = line.split_at(1);
@@ -696,22 +733,16 @@ pub fn day09() -> () {
         // println!("{} {}, H: {}-{}, T: {}-{}", direction, count, head.0, head.1, tail.0, tail.1);
 
         for _ in 0..count {
-            match direction {
-                'R' => move_right(&mut head, &mut tail),
-                'L' => move_left(&mut head, &mut tail),
-                'U' => move_up(&mut head, &mut tail),
-                'D' => move_down(&mut head, &mut tail),
-                _ => {
-                    println!("Unexpected move: {}", direction)
-                }
-            };
+            tail_loop(&mut short_tail, direction);
+            add_position(&short_tail[1], &mut short_tail_all);
 
-            add_position(&tail, &mut tail_all);
+            tail_loop(&mut long_tail, direction);
+            add_position(&long_tail[9], &mut long_tail_all);
         }
     }
 
-    let total01 = tail_all.len();
-    let total02: i32 = 0;
+    let total01 = short_tail_all.len();
+    let total02 = long_tail_all.len();
 
     println!("Part 1, result: {:?}", total01); // 6470
     println!("Part 2, result: {:?}", total02);
