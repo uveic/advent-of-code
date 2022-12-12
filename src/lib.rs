@@ -627,74 +627,160 @@ pub fn day09() -> () {
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
     struct Point(i32, i32);
 
-    fn move_right(t: &mut Vec<Point>, p: i32) -> () {
-        let p = p as usize;
-
-        t[p].0 += 1;
-
-        if t[p].1 == t[p + 1].1 && t[p].0 - t[p + 1].0 > 1 {
-            t[p + 1].0 = t[p + 1].0 + 1;
-        } else if t[p].1 != t[p + 1].1 && t[p].0 - t[p + 1].0 > 1 {
-            t[p + 1].1 = t[p].1;
-            t[p + 1].0 += 1;
+    fn move_right(t: &mut Vec<Point>, p: usize) -> bool {
+        if p == 0 {
+            t[p].0 += 1;
+            println!("Position moved: {}, Tail: {:?}", p, t);
+            return false;
         }
 
-        if p + 1 <= t.len() - 1 {
-            t[p + 1].0 = t[p].0 - 1;
+        let mut me: Point = t[p].clone();
+        let their: Point= t[p - 1].clone();
+
+        println!("\nPosition: {}, Before: {:?}", p, t);
+
+        if their.1 - me.1 > 0 {
+            me.1 += 1;
         }
 
-        println!("{}: {}-{}, {}: {}-{}", p, t[p].0, t[p].1, p + 1, t[p + 1].0, t[p + 1].1);
+        if their.0 - me.0 > 0 {
+            me.0 += 1;
+        }
+
+        println!("Me: {:?}, their: {:?}", me, their);
+
+        if me == their {
+            println!("Position: {} => STOP", p);
+            return true;
+        }
+
+        if t[p - 1].1 - t[p].1 > 0 {
+            t[p].1 += 1;
+        }
+
+        if t[p - 1].0 - t[p].0 > 0 {
+            t[p].0 += 1;
+        }
+
+        println!("Position moved: {}, Tail: {:?}", p, t);
+
+        false
     }
 
-    fn move_left(t: &mut Vec<Point>, p: i32) -> () {
-        let p = p as usize;
-
-        t[p].0 -= 1;
-
-        if t[p].1 == t[p + 1].1 && t[p + 1].0 - t[p].0 > 1 {
-            t[p + 1].0 -= 1;
-        } else if t[p].1 != t[p + 1].1 && t[p + 1].0 - t[p].0 > 1 {
-            t[p + 1].1 = t[p].1;
-            t[p + 1].0 -= 1;
+    fn move_left(t: &mut Vec<Point>, p: usize) -> bool {
+        if p == 0 {
+            t[p].0 -= 1;
+            println!("Position moved: {}, Tail: {:?}", p, t);
+            return false;
         }
 
-        if p + 1 <= t.len() - 1 {
-            t[p + 1].0 = t[p].0 + 1;
+        let mut me: Point = t[p].clone();
+        let their: Point= t[p - 1].clone();
+
+        println!("\nPosition: {}, Before: {:?}", p, t);
+
+        if me.1 - their.1 > 0 {
+            me.1 -= 1;
         }
+
+        if me.0 - their.0 > 0 {
+            me.0 -= 1;
+        }
+
+        println!("Me: {:?}, their: {:?}", me, their);
+
+        if me == their {
+            println!("Position: {} => STOP", p);
+            return true;
+        }
+
+        if t[p].1 - t[p - 1].1 > 0 {
+            t[p].1 -= 1;
+        }
+
+        if t[p].0 - t[p - 1].0 > 0 {
+            t[p].0 -= 1;
+        }
+
+        println!("Position moved: {}, Tail: {:?}", p, t);
+
+        false
     }
 
-    fn move_up(t: &mut Vec<Point>, p: i32) -> () {
-        let p = p as usize;
-
-        t[p].1 += 1;
-
-        if t[p].0 == t[p + 1].0 && t[p].1 - t[p + 1].1 > 1 {
-            t[p + 1].1 += 1;
-        } else if t[p].0 != t[p + 1].0 && t[p].1 - t[p + 1].1 > 1 {
-            t[p + 1].0 = t[p].0;
-            t[p + 1].1 += 1;
+    fn move_up(t: &mut Vec<Point>, p: usize) -> bool {
+        if p == 0 {
+            t[p].1 += 1;
+            return false;
         }
 
-        if p + 1 <= t.len() - 1 {
-            t[p + 1].1 = t[p].1 - 1;
+        let mut me: Point = t[p].clone();
+        let their: Point= t[p - 1].clone();
+
+        println!("\nPosition: {}, Before: {:?}", p, t);
+
+        if their.1 - me.1 > 0 {
+            me.1 += 1;
         }
+
+        if their.0 - me.0 > 0 {
+            me.0 += 1;
+        }
+
+        println!("Me: {:?}, their: {:?}", me, their);
+
+        if me == their {
+            println!("Position: {} => STOP", p);
+            return true;
+        }
+
+        if t[p - 1].1 - t[p].1 > 0 {
+            t[p].1 += 1;
+        }
+
+        if t[p - 1].0 - t[p].0 > 0 {
+            t[p].0 += 1;
+        }
+
+        println!("Position moved: {}, Tail: {:?}", p, t);
+
+        false
     }
 
-    fn move_down(t: &mut Vec<Point>, p: i32) -> () {
-        let p = p as usize;
-
-        t[p].1 -= 1;
-
-        if t[p].0 == t[p + 1].0 && t[p + 1].1 - t[p].1 > 1 {
-            t[p + 1].1 -= 1;
-        } else if t[p].0 != t[p + 1].0 && t[p + 1].1 - t[p].1 > 1 {
-            t[p + 1].0 = t[p].0;
-            t[p + 1].1 -= 1;
+    fn move_down(t: &mut Vec<Point>, p: usize) -> bool {
+        if p == 0 {
+            t[p].1 -= 1;
+            return false;
         }
 
-        if p + 1 <= t.len() - 1 {
-            t[p + 1].1 = t[p].1 + 1;
+        let mut me: Point = t[p].clone();
+        let their: Point= t[p - 1].clone();
+
+        println!("\nPosition: {}, Before: {:?}", p, t);
+
+        if me.1 - their.1 > 0 {
+            me.1 -= 1;
         }
+
+        if me.0 - their.0 > 0 {
+            me.0 -= 1;
+        }
+
+        println!("Me: {:?}, their: {:?}", me, their);
+
+        if me == their {
+            println!("Position: {} => STOP", p);
+            return true;
+        }
+
+        if t[p].1 - t[p - 1].1 > 0 {
+            t[p].1 -= 1;
+        }
+
+        if t[p].0 - t[p - 1].0 > 0 {
+            t[p].0 -= 1;
+        }
+
+        false
     }
 
     fn add_position(point: &Point, tail: &mut HashMap<Point, bool>) -> () {
@@ -706,24 +792,26 @@ pub fn day09() -> () {
         };
     }
 
-    fn tail_loop(tail: &mut Vec<Point>, direction: char, count: &i32) -> () {
-        let moves: i32 = if count < &(tail.len() as i32) {
-            count - 1
-        } else {
-            (tail.len() - 1) as i32
-        };
-
-        for i in 0..moves {
-            match direction {
-                'R' => move_right(tail, i as i32),
-                'L' => move_left(tail, i as i32),
-                'U' => move_up(tail, i as i32),
-                'D' => move_down(tail, i as i32),
+    fn tail_loop(tail: &mut Vec<Point>, direction: char) -> () {
+        for i in 0..tail.len() {
+            let stop: bool = match direction {
+                'R' => move_right(tail, i),
+                'L' => move_left(tail, i),
+                'U' => move_up(tail, i),
+                'D' => move_down(tail, i),
                 _ => {
-                    println!("Unexpected move: {}", direction)
+                    println!("Unexpected move: {}", direction);
+                    true
                 }
             };
+
+            if stop {
+                break;
+            }
         }
+
+        println!("End of loop: {:?}", tail);
+        // println!("{}: {}-{}, {}: {}-{}", p, t[p].0, t[p].1, p + 1, t[p + 1].0, t[p + 1].1);
     }
 
     println!("############ DAY 9 ############");
@@ -755,16 +843,16 @@ pub fn day09() -> () {
         let count: i32 = right.trim().parse().unwrap();
 
         println!(
-            "{} {}, H: {}-{}, T: {}-{}",
+            "\n======== {} {}, H: {}-{}, T: {}-{} ========",
             direction, count, long_tail[0].0, long_tail[0].1, long_tail[9].0, long_tail[9].1
         );
-        println!("{:?}", long_tail);
 
-        for _ in 0..count {
-            tail_loop(&mut short_tail, direction, &count);
-            add_position(&short_tail[1], &mut short_tail_all);
+        for i in 0..count {
+            println!("\nLoop: {}", i);
+            // tail_loop(&mut short_tail, direction);
+            // add_position(&short_tail[1], &mut short_tail_all);
 
-            tail_loop(&mut long_tail, direction, &count);
+            tail_loop(&mut long_tail, direction);
             add_position(&long_tail[9], &mut long_tail_all);
         }
     }
