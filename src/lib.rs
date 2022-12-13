@@ -679,7 +679,7 @@ pub fn day09() -> () {
 
         println!("\nPosition: {}, Before: {:?}", p, t);
 
-        if me.1 - their.1 > 0 {
+        if their.1 - me.1 > 0 {
             me.1 -= 1;
         }
 
@@ -694,7 +694,7 @@ pub fn day09() -> () {
             return true;
         }
 
-        if t[p].1 - t[p - 1].1 > 0 {
+        if t[p - 1].1 - t[p].1 > 0 {
             t[p].1 -= 1;
         }
 
@@ -757,7 +757,7 @@ pub fn day09() -> () {
 
         println!("\nPosition: {}, Before: {:?}", p, t);
 
-        if me.1 - their.1 > 0 {
+        if their.1 - me.1 > 0 {
             me.1 -= 1;
         }
 
@@ -772,7 +772,7 @@ pub fn day09() -> () {
             return true;
         }
 
-        if t[p].1 - t[p - 1].1 > 0 {
+        if t[p - 1].1 - t[p].1 > 0 {
             t[p].1 -= 1;
         }
 
@@ -849,8 +849,8 @@ pub fn day09() -> () {
 
         for i in 0..count {
             println!("\nLoop: {}", i);
-            // tail_loop(&mut short_tail, direction);
-            // add_position(&short_tail[1], &mut short_tail_all);
+            tail_loop(&mut short_tail, direction);
+            add_position(&short_tail[1], &mut short_tail_all);
 
             tail_loop(&mut long_tail, direction);
             add_position(&long_tail[9], &mut long_tail_all);
@@ -861,5 +861,5 @@ pub fn day09() -> () {
     let total02 = long_tail_all.len();
 
     println!("Part 1, result: {:?}", total01); // 6470
-    println!("Part 2, result: {:?}", total02);
+    println!("Part 2, result: {:?}", total02); // 6837 high
 }
