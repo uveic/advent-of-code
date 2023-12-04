@@ -1,13 +1,7 @@
-use advent2022::{day01, day02, day03, day04, day05, day06, day07, day08, day09};
+//use advent_of_code::aoc_2022;
+use advent_of_code::aoc_2023;
 
 fn main() {
-    day01();
-    day02();
-    day03();
-    day04();
-    day05();
-    day06();
-    day07();
-    day08();
-    day09();
+    //aoc_2022();
+    aoc_2023();
 }
