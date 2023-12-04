@@ -27,7 +27,8 @@ pub fn day01() -> () {
 }
 
 pub fn day02() -> () {
-    let content = fs::read_to_string(String::from("input/2022/day02_rock_paper_scissors.txt")).unwrap();
+    let content =
+        fs::read_to_string(String::from("input/2022/day02_rock_paper_scissors.txt")).unwrap();
     let rounds: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
 
     let mut total01: i32 = 0;
@@ -635,7 +636,7 @@ pub fn day09() -> () {
         }
 
         let mut me: Point = t[p].clone();
-        let their: Point= t[p - 1].clone();
+        let their: Point = t[p - 1].clone();
 
         println!("\nPosition: {}, Before: {:?}", p, t);
 
@@ -675,7 +676,7 @@ pub fn day09() -> () {
         }
 
         let mut me: Point = t[p].clone();
-        let their: Point= t[p - 1].clone();
+        let their: Point = t[p - 1].clone();
 
         println!("\nPosition: {}, Before: {:?}", p, t);
 
@@ -714,7 +715,7 @@ pub fn day09() -> () {
         }
 
         let mut me: Point = t[p].clone();
-        let their: Point= t[p - 1].clone();
+        let their: Point = t[p - 1].clone();
 
         println!("\nPosition: {}, Before: {:?}", p, t);
 
@@ -753,7 +754,7 @@ pub fn day09() -> () {
         }
 
         let mut me: Point = t[p].clone();
-        let their: Point= t[p - 1].clone();
+        let their: Point = t[p - 1].clone();
 
         println!("\nPosition: {}, Before: {:?}", p, t);
 
