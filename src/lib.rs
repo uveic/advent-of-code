@@ -1,6 +1,11 @@
 mod aoc_2022;
 mod aoc_2023;
 
+struct AocResult {
+    part01: i32,
+    part02: i32,
+}
+
 pub fn aoc_2022() {
     aoc_2022::day01();
     aoc_2022::day02();
@@ -14,5 +19,9 @@ pub fn aoc_2022() {
 }
 
 pub fn aoc_2023() {
-    aoc_2023::day01();
+    let res: AocResult = aoc_2023::day01();
+
+    println!("############ 2023 DAY 1 ############");
+    println!("Part 1, result: {:?}", res.part01); // 53386
+    println!("Part 2, result: {:#?}", res.part02); // 53312
 }
