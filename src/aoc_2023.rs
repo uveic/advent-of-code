@@ -3,6 +3,7 @@ use std::fs;
 use std::ops::Add;
 
 pub fn day02() -> AocResult {
+    #[derive(Copy, Clone, Debug)]
     struct RGB {
         red: u32,
         green: u32,
@@ -13,12 +14,16 @@ pub fn day02() -> AocResult {
         pub fn is_valid(&self, other: RGB) -> bool {
             self.red >= other.red && self.green >= other.green && self.blue >= other.blue
         }
+
+        pub fn product(&self) -> u32 {
+            self.red * self.green * self.blue
+        }
     }
 
-    fn process_line(line: &str, loaded: &RGB) -> i32 {
+    fn process_line(line: &str, loaded: &RGB) -> (i32, i32) {
         let position_colon = line.find(":").unwrap();
 
-        let res: bool = line[position_colon + 1..].trim()
+        let cubes: Vec<RGB> = line[position_colon + 1..].trim()
             .split(";")
             .map(|l| {
                 fn process_colour(haystack: &str, needle: &str) -> u32 {
@@ -37,19 +42,37 @@ pub fn day02() -> AocResult {
                     }
                 }
 
-                let result = RGB {
+                RGB {
                     red: process_colour(l, " red"),
                     green: process_colour(l, " green"),
                     blue: process_colour(l, " blue"),
-                };
+                }
+            }).collect();
 
-                loaded.is_valid(result)
-            }).any(|x| x == false);
+        let res_part01 = cubes.clone()
+            .into_iter()
+            .map(|c| loaded.is_valid(c))
+            .any(|x| x == false);
 
-        if res {
-            0
+        let mut min_cubes = RGB { red: 1, green: 1, blue: 1 };
+        for cube in &cubes {
+            if min_cubes.red < cube.red {
+                min_cubes.red = cube.red;
+            }
+
+            if min_cubes.green < cube.green {
+                min_cubes.green = cube.green;
+            }
+
+            if min_cubes.blue < cube.blue {
+                min_cubes.blue = cube.blue;
+            }
+        }
+
+        if res_part01 {
+            (0, min_cubes.product() as i32)
         } else {
-            line[4..position_colon].trim().parse().unwrap()
+            (line[4..position_colon].trim().parse().unwrap(), min_cubes.product() as i32)
         }
     }
 
@@ -62,11 +85,18 @@ pub fn day02() -> AocResult {
         blue: 14,
     };
 
-    let total = lines.iter().map(|l| process_line(l, &loaded)).sum();
+    let res = lines.iter().map(|l| process_line(l, &loaded));
+    let mut total01 = 0;
+    let mut total02 = 0;
+
+    for item in res {
+        total01 += item.0;
+        total02 += item.1;
+    }
 
     AocResult {
-        part01: total,
-        part02: 0,
+        part01: total01,
+        part02: total02,
     }
 }
 
