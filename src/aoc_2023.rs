@@ -2,6 +2,64 @@ use crate::AocResult;
 use std::fs;
 use std::ops::Add;
 
+pub fn day03() -> AocResult {
+    let content = fs::read_to_string(String::from("input/2023/day03.txt")).unwrap();
+    let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
+
+    fn get_number_to_the_right(line: &str) -> String
+    {
+        let mut result = String::from("");
+        for c in line.chars() {
+            if !c.is_ascii_digit() {
+                break
+            }
+
+            result.push(c);
+        }
+
+        result
+    }
+
+    fn get_number(line: &str, position: i32) -> i32 {
+        let char: char = line.chars()[position];
+
+        if char == '.' {
+            return 0
+        }
+
+        if char.is_ascii_digit() {
+            let right = get_number_to_the_right()
+        }
+
+        0
+    }
+
+    let mut line_count = 0;
+    for line in lines {
+        let mut char_count = 0;
+        let mut symbols: Vec<i32> = Vec::new();
+        for char in line.chars() {
+            if !char.is_ascii_digit() && char != '.' {
+                symbols.push(char_count);
+            }
+
+            char_count += 1;
+        }
+
+        println!("{}", line);
+        println!("{:?}", symbols);
+
+        lines.get(line_count - 1)
+
+        line_count += 1;
+    }
+
+    AocResult {
+        part01: 0,
+        part02: 0,
+    }
+}
+
 pub fn day02() -> AocResult {
     #[derive(Copy, Clone, Debug)]
     struct RGB {
