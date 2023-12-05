@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use crate::AocResult;
 use std::fs;
 use std::ops::Add;
@@ -6,56 +7,130 @@ pub fn day03() -> AocResult {
     let content = fs::read_to_string(String::from("input/2023/day03.txt")).unwrap();
     let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
 
-    fn get_number_to_the_right(line: &str) -> String
-    {
+    fn get_number_to_the_right(line: &str) -> i32 {
         let mut result = String::from("");
         for c in line.chars() {
             if !c.is_ascii_digit() {
-                break
+                break;
             }
 
             result.push(c);
         }
 
-        result
-    }
-
-    fn get_number(line: &str, position: i32) -> i32 {
-        let char: char = line.chars()[position];
-
-        if char == '.' {
-            return 0
+        if result.len() == 0 {
+            return 0;
         }
 
-        if char.is_ascii_digit() {
-            let right = get_number_to_the_right()
-        }
-
-        0
+        result.parse::<i32>().unwrap()
     }
 
+    fn get_number_to_the_left(line: &str) -> i32 {
+        let mut result = String::from("");
+        for c in line.chars().rev() {
+            if !c.is_ascii_digit() {
+                break;
+            }
+
+            result.push(c);
+        }
+
+        if result.len() == 0 {
+            return 0;
+        }
+
+        let mut output = String::new();
+        for c in result.chars().rev() {
+            output.push(c);
+        }
+
+        output.parse::<i32>().unwrap()
+    }
+
+    fn get_number(line: &str, position: usize) -> HashSet<i32>
+    {
+        let mut output: HashSet<i32> = HashSet::new();
+
+        for i in position-1..position+2 {
+            let mut start: usize = i;
+            let mut reached_zero = false;
+            while line.as_bytes()[start].is_ascii_digit() {
+                if start == 0 {
+                    reached_zero = true;
+                    break
+                }
+                start -= 1;
+            }
+
+            let length = line.len();
+            let mut reached_end = false;
+            let mut end: usize = i;
+            while line.as_bytes()[end].is_ascii_digit() {
+                if end + 1 == length {
+                    reached_end = true;
+                    break
+                }
+                end += 1;
+            }
+
+            if start != i || end != i {
+                if reached_zero == false {
+                    start += 1;
+                }
+
+                if reached_end == true {
+                    end += 1;
+                }
+
+                let part = &line[start..end].parse::<i32>().unwrap();
+
+                if !output.contains(part) {
+                    output.insert(*part);
+                }
+            }
+        }
+
+        output
+    }
+
+    let mut numbers: Vec<i32> = Vec::new();
     let mut line_count = 0;
-    for line in lines {
+    for line in &lines {
         let mut char_count = 0;
-        let mut symbols: Vec<i32> = Vec::new();
+        let mut symbols_position: Vec<i32> = Vec::new();
         for char in line.chars() {
             if !char.is_ascii_digit() && char != '.' {
-                symbols.push(char_count);
+                symbols_position.push(char_count);
             }
 
             char_count += 1;
         }
 
-        println!("{}", line);
-        println!("{:?}", symbols);
+        for position in symbols_position {
+            numbers.push(get_number_to_the_right(&line[(position as usize) + 1..]));
+            numbers.push(get_number_to_the_left(&line[..(position as usize)]));
 
-        lines.get(line_count - 1)
+            numbers = [
+                numbers,
+                get_number(
+                    lines.get(line_count - 1).unwrap_or(&""),
+                    position as usize,
+                ).into_iter().collect()
+            ].concat();
+
+            numbers = [
+                numbers,
+                get_number(
+                    lines.get(line_count + 1).unwrap_or(&""),
+                    position as usize,
+                ).into_iter().collect()
+            ].concat();
+        }
 
         line_count += 1;
     }
 
     AocResult {
-        part01: 0,
+        part01: numbers.iter().sum(),
         part02: 0,
     }
 }
@@ -81,7 +156,8 @@ pub fn day02() -> AocResult {
     fn process_line(line: &str, loaded: &RGB) -> (i32, i32) {
         let position_colon = line.find(":").unwrap();
 
-        let cubes: Vec<RGB> = line[position_colon + 1..].trim()
+        let cubes: Vec<RGB> = line[position_colon + 1..]
+            .trim()
             .split(";")
             .map(|l| {
                 fn process_colour(haystack: &str, needle: &str) -> u32 {
@@ -95,7 +171,10 @@ pub fn day02() -> AocResult {
                     };
 
                     match needle_pos > 0 {
-                        true => haystack[(comma_pos + 1) as usize..needle_pos+1].trim().parse::<u32>().unwrap(),
+                        true => haystack[(comma_pos + 1) as usize..needle_pos + 1]
+                            .trim()
+                            .parse::<u32>()
+                            .unwrap(),
                         false => 0,
                     }
                 }
@@ -105,14 +184,21 @@ pub fn day02() -> AocResult {
                     green: process_colour(l, " green"),
                     blue: process_colour(l, " blue"),
                 }
-            }).collect();
+            })
+            .collect();
 
-        let res_part01 = cubes.clone()
+        let res_part01 = cubes
+            .clone()
             .into_iter()
             .map(|c| loaded.is_valid(c))
             .any(|x| x == false);
 
-        let mut min_cubes = RGB { red: 1, green: 1, blue: 1 };
+        let mut min_cubes = RGB {
+            red: 1,
+            green: 1,
+            blue: 1,
+        };
+
         for cube in &cubes {
             if min_cubes.red < cube.red {
                 min_cubes.red = cube.red;
@@ -130,7 +216,10 @@ pub fn day02() -> AocResult {
         if res_part01 {
             (0, min_cubes.product() as i32)
         } else {
-            (line[4..position_colon].trim().parse().unwrap(), min_cubes.product() as i32)
+            (
+                line[4..position_colon].trim().parse().unwrap(),
+                min_cubes.product() as i32,
+            )
         }
     }
 
