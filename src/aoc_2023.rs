@@ -1,7 +1,7 @@
-use std::collections::HashSet;
 use crate::AocResult;
-use std::fs;
+use std::collections::HashSet;
 use std::ops::Add;
+use std::{fs, i32};
 
 pub fn day03() -> AocResult {
     let content = fs::read_to_string(String::from("input/2023/day03.txt")).unwrap();
@@ -46,17 +46,16 @@ pub fn day03() -> AocResult {
         output.parse::<i32>().unwrap()
     }
 
-    fn get_number(line: &str, position: usize) -> HashSet<i32>
-    {
+    fn get_number(line: &str, position: usize) -> HashSet<i32> {
         let mut output: HashSet<i32> = HashSet::new();
 
-        for i in position-1..position+2 {
+        for i in position - 1..position + 2 {
             let mut start: usize = i;
             let mut reached_zero = false;
             while line.as_bytes()[start].is_ascii_digit() {
                 if start == 0 {
                     reached_zero = true;
-                    break
+                    break;
                 }
                 start -= 1;
             }
@@ -67,7 +66,7 @@ pub fn day03() -> AocResult {
             while line.as_bytes()[end].is_ascii_digit() {
                 if end + 1 == length {
                     reached_end = true;
-                    break
+                    break;
                 }
                 end += 1;
             }
@@ -92,46 +91,76 @@ pub fn day03() -> AocResult {
         output
     }
 
+    fn get_numbers_for_position(
+        line: &str,
+        previous_line: &str,
+        next_line: &str,
+        position: usize,
+    ) -> Vec<i32> {
+        let mut output: Vec<i32> = Vec::new();
+
+        output.push(get_number_to_the_right(&line[position + 1..]));
+        output.push(get_number_to_the_left(&line[..position]));
+
+        output = [
+            output,
+            get_number(previous_line, position).into_iter().collect(),
+        ]
+        .concat();
+
+        output = [
+            output,
+            get_number(next_line, position).into_iter().collect(),
+        ]
+        .concat();
+
+        output
+    }
+
+    let mut total02 = 0;
     let mut numbers: Vec<i32> = Vec::new();
     let mut line_count = 0;
     for line in &lines {
+        let mut line_numbers: Vec<i32> = Vec::new();
         let mut char_count = 0;
-        let mut symbols_position: Vec<i32> = Vec::new();
+        let mut symbols_position: Vec<(i32, bool)> = Vec::new();
         for char in line.chars() {
             if !char.is_ascii_digit() && char != '.' {
-                symbols_position.push(char_count);
+                symbols_position.push((char_count, char == '*'));
             }
 
             char_count += 1;
         }
 
         for position in symbols_position {
-            numbers.push(get_number_to_the_right(&line[(position as usize) + 1..]));
-            numbers.push(get_number_to_the_left(&line[..(position as usize)]));
+            line_numbers = get_numbers_for_position(
+                &line,
+                lines.get(line_count - 1).unwrap_or(&""),
+                lines.get(line_count + 1).unwrap_or(&""),
+                position.0 as usize,
+            );
 
-            numbers = [
-                numbers,
-                get_number(
-                    lines.get(line_count - 1).unwrap_or(&""),
-                    position as usize,
-                ).into_iter().collect()
-            ].concat();
+            if position.1 == true {
+                let mut not_zero: Vec<i32> = Vec::new();
+                for ln in &line_numbers {
+                    if *ln != 0 {
+                        not_zero.push(*ln);
+                    }
+                }
 
-            numbers = [
-                numbers,
-                get_number(
-                    lines.get(line_count + 1).unwrap_or(&""),
-                    position as usize,
-                ).into_iter().collect()
-            ].concat();
+                if not_zero.len() == 2 {
+                    total02 += not_zero.iter().product::<i32>();
+                }
+            }
         }
 
+        numbers = [numbers, line_numbers].concat();
         line_count += 1;
     }
 
     AocResult {
         part01: numbers.iter().sum(),
-        part02: 0,
+        part02: total02,
     }
 }
 
