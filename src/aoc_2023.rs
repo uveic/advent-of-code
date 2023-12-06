@@ -3,6 +3,48 @@ use std::collections::HashSet;
 use std::ops::Add;
 use std::{fs, i32};
 
+pub fn day04() -> AocResult {
+    let content = fs::read_to_string(String::from("input/2023/day04.txt")).unwrap();
+    let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
+
+    let mut total01 = 0;
+    for line in &lines {
+        let position_colon = line.find(":").unwrap();
+        let position_bar = line.find("|").unwrap();
+
+        let winning_numbers: &HashSet<i32> = &line[position_colon+1..position_bar]
+            .trim()
+            .split(" ")
+            .filter(|n| n.len() > 0)
+            .map(|n| n.trim().parse::<i32>().unwrap())
+            .collect();
+        let card_numbers: &HashSet<i32> = &line[position_bar+1..]
+            .trim()
+            .split(" ")
+            .filter(|n| n.len() > 0)
+            .map(|n| n.trim().parse::<i32>().unwrap())
+            .collect();
+
+        let intersection = card_numbers.intersection(&winning_numbers);
+        let mut total = 0;
+
+        for _ in intersection {
+            if total == 0 {
+                total = 1;
+            } else {
+                total *= 2;
+            }
+        }
+
+        total01 += total
+    }
+
+    AocResult {
+        part01: total01,
+        part02: 0,
+    }
+}
+
 pub fn day03() -> AocResult {
     let content = fs::read_to_string(String::from("input/2023/day03.txt")).unwrap();
     let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
