@@ -37,5 +37,5 @@ pub fn aoc_2023() {
     let res: AocResult = aoc_2023::day04();
     println!("############ 2023 DAY 4 ############");
     println!("Part 1, result: {:?}", res.part01); // 28538
-    println!("Part 2, result: {:#?}", res.part02);
+    println!("Part 2, result: {:#?}", res.part02); // 9425061
 }

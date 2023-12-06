@@ -1,5 +1,5 @@
 use crate::AocResult;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::ops::Add;
 use std::{fs, i32};
 
@@ -7,8 +7,7 @@ pub fn day04() -> AocResult {
     let content = fs::read_to_string(String::from("input/2023/day04.txt")).unwrap();
     let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
 
-    let mut total01 = 0;
-    for line in &lines {
+    fn get_intersection_count(line: &str) -> usize {
         let position_colon = line.find(":").unwrap();
         let position_bar = line.find("|").unwrap();
 
@@ -25,23 +24,51 @@ pub fn day04() -> AocResult {
             .map(|n| n.trim().parse::<i32>().unwrap())
             .collect();
 
-        let intersection = card_numbers.intersection(&winning_numbers);
-        let mut total = 0;
+        card_numbers.intersection(winning_numbers).count()
+    }
 
-        for _ in intersection {
-            if total == 0 {
-                total = 1;
+    let mut total02 = 0;
+    let mut total01 = 0;
+    let mut line_count = 0;
+    let total_lines = lines.len();
+    let mut winning_cards: HashMap<usize, usize> = HashMap::new();
+
+    for line in &lines {
+        let winning_numbers_count = get_intersection_count(&line);
+
+        let mut winning_numbers_sum = 0;
+        let current = winning_cards.entry(line_count).or_insert(0);
+        *current += 1;
+        let cards_won = winning_cards.get(&line_count).unwrap_or(&1).clone();
+
+        for _ in 0..winning_numbers_count {
+            if winning_numbers_sum == 0 {
+                winning_numbers_sum = 1;
             } else {
-                total *= 2;
+                winning_numbers_sum *= 2;
             }
         }
 
-        total01 += total
+        for _ in 0..cards_won {
+            for new_line in line_count+1..=line_count+winning_numbers_count {
+                if new_line >= total_lines {
+                    continue;
+                }
+
+                let existing = winning_cards.entry(new_line).or_insert(0);
+                *existing += 1;
+            }
+        }
+
+        total01 += winning_numbers_sum;
+        line_count += 1;
     }
+
+    total02 += winning_cards.into_values().sum::<usize>();
 
     AocResult {
         part01: total01,
-        part02: 0,
+        part02: total02 as i32,
     }
 }
 
