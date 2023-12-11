@@ -1,6 +1,6 @@
 use chrono::Datelike;
 use std::env;
-//use advent_of_code::aoc_2022;
+use std::process::exit;
 use advent_of_code::{aoc_2022, aoc_2023};
 
 fn main() {
@@ -42,9 +42,14 @@ fn main() {
     let year = get_year(&args);
     let day = get_day(&args);
 
+    if day == None {
+        println!("Expected parameter '--day xx'. Aborting...");
+        exit(0);
+    }
+
     match year {
         2022 => aoc_2022(),
-        2023 => aoc_2023(day),
+        2023 => aoc_2023(day.unwrap()),
         _ => println!("Wrong year!"),
     }
 }
