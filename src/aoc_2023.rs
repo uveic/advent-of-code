@@ -31,9 +31,7 @@ pub fn day11() -> AocResult {
         let mut count = 0;
 
         for m in matrix {
-            let length = m.iter().collect::<HashSet<_>>().len();
-
-            if length == 1 {
+            if !m.contains(&'#') {
                 output.push(count);
             }
 
@@ -137,7 +135,7 @@ pub fn day11() -> AocResult {
                 repeated.insert(first);
                 repeated.insert(second);
 
-                println!("Distance {}-{} => {}-{} -> {}", a.x, a.y, b.x, b.y, a.x.abs_diff(b.x) + a.y.abs_diff(b.y));
+                // println!("Distance {}-{} => {}-{} -> {}", a.x, a.y, b.x, b.y, a.x.abs_diff(b.x) + a.y.abs_diff(b.y));
                 total += a.x.abs_diff(b.x) + a.y.abs_diff(b.y);
             }
         }
