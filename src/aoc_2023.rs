@@ -4,6 +4,8 @@ use std::ops::Add;
 use std::{fs, i32};
 
 // Part 1: 9536038
+// Part 2: 1068041782 => too low
+// Part 2: 1068489518 => too low
 pub fn day11() -> AocResult {
     let content = fs::read_to_string(String::from("input/2023/day11.txt")).unwrap();
     let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
@@ -24,59 +26,47 @@ pub fn day11() -> AocResult {
         output
     }
 
-    fn get_points(matrix: &Vec<Vec<char>>) -> Vec<Point> {
-        let mut expanded_rows = Vec::new();
+    fn get_rows_to_expand(matrix: &Vec<Vec<char>>) -> Vec<usize> {
+        let mut output = Vec::new();
+        let mut count = 0;
 
         for m in matrix {
-            let length = m
-                .iter()
-                .collect::<HashSet<_>>()
-                .len();
+            let length = m.iter().collect::<HashSet<_>>().len();
 
             if length == 1 {
-                expanded_rows.push(m.clone());
+                output.push(count);
             }
 
-            expanded_rows.push(m.clone());
+            count += 1;
         }
 
+        output
+    }
+
+    fn get_columns_to_expand(matrix: &Vec<Vec<char>>) -> Vec<usize> {
         let mut columns: Vec<usize> = Vec::new();
-        for i in 0 .. expanded_rows[0].len() {
+        for i in 0..matrix[0].len() {
             let mut column: Vec<char> = Vec::new();
-            for j in 0 .. expanded_rows.len() {
-                column.push(expanded_rows[j].get(i).unwrap().clone());
+            for j in 0..matrix.len() {
+                column.push(matrix[j].get(i).unwrap().clone());
             }
 
-            let length = column
-                .iter()
-                .collect::<HashSet<_>>()
-                .len();
+            let length = column.iter().collect::<HashSet<_>>().len();
 
             if length == 1 {
                 columns.push(i);
             }
         }
 
-        let mut expanded_columns = Vec::new();
-        for i in 0 .. expanded_rows.len() {
-            let mut column: Vec<char> = Vec::new();
-            for j in 0 .. expanded_rows[0].len() {
-                for c in &columns {
-                    if &j == c {
-                        column.push(expanded_rows[i].get(j).unwrap().clone());
-                    }
-                }
+        columns
+    }
 
-                column.push(expanded_rows[i].get(j).unwrap().clone());
-            }
-
-            expanded_columns.push(column);
-        }
-
+    fn get_original_points(matrix: &Vec<Vec<char>>) -> Vec<Point> {
         let mut output = Vec::new();
-        for i in 0 .. expanded_columns.len() {
-            for j in 0 .. expanded_columns[0].len() {
-                let c = expanded_columns[i].get(j).unwrap();
+
+        for i in 0..matrix.len() {
+            for j in 0..matrix[0].len() {
+                let c = matrix[i].get(j).unwrap();
                 if c == &'#' {
                     output.push(Point { x: i, y: j });
                 }
@@ -86,23 +76,102 @@ pub fn day11() -> AocResult {
         output
     }
 
-    let matrix = get_matrix(&lines);
-    let points = get_points(&matrix);
+    fn get_new_points(
+        original_points: &Vec<Point>,
+        rows_to_expand: &Vec<usize>,
+        columns_to_expand: &Vec<usize>,
+        expansion_times: usize,
+    ) -> Vec<Point> {
+        fn get_multiplier(position: &usize, values: &Vec<usize>) -> usize {
+            let mut output = 0;
 
-    let mut total01: usize = 0;
-    for a in &points {
-        for b in &points {
-            if a.x == b.x && a.y == b.y {
-                continue;
+            for v in values {
+                if position > v {
+                    output += 1;
+                }
             }
 
-            total01 += a.x.abs_diff(b.x) + a.y.abs_diff(b.y);
+            output
         }
+
+        let mut output = Vec::new();
+
+        for p in original_points {
+            let x_multiplier = get_multiplier(&p.x, &rows_to_expand);
+            let x_expansion = (x_multiplier * expansion_times) - x_multiplier;
+
+            let new_x = p.x + x_expansion;
+
+            let y_multiplier = get_multiplier(&p.y, &columns_to_expand);
+            let y_expansion = (y_multiplier * expansion_times) - y_multiplier;
+
+            let new_y = p.y + y_expansion;
+
+            output.push(Point { x: new_x, y: new_y });
+
+            println!(
+                "{}-{} + {}-{} => {}-{} ::: multiplier: {}, {}",
+                p.x, p.y, x_expansion, y_expansion, new_x, new_y, x_multiplier, y_multiplier
+            );
+        }
+
+        output
     }
 
+    fn get_total(points: &Vec<Point>) -> i32 {
+        let mut repeated: HashSet<String> = HashSet::new();
+        let mut total: usize = 0;
+
+        for a in points {
+            for b in points {
+                if a.x == b.x && a.y == b.y {
+                    continue;
+                }
+
+                let first = format!("{}-{} {}-{}", a.x, a.y, b.x, b.y);
+                let second = format!("{}-{} {}-{}", b.x, b.y, a.x, a.y);
+                if repeated.contains(&first) || repeated.contains(&second) {
+                    continue;
+                }
+
+                repeated.insert(first);
+                repeated.insert(second);
+
+                println!("Distance {}-{} => {}-{} -> {}", a.x, a.y, b.x, b.y, a.x.abs_diff(b.x) + a.y.abs_diff(b.y));
+                total += a.x.abs_diff(b.x) + a.y.abs_diff(b.y);
+            }
+        }
+
+        total as i32
+    }
+
+    let matrix = get_matrix(&lines);
+
+    let original_points = get_original_points(&matrix);
+    let rows_to_expand = get_rows_to_expand(&matrix);
+    let columns_to_expand = get_columns_to_expand(&matrix);
+
+    println!("Rows to expand: {:?}", rows_to_expand);
+    println!("Columns to expand: {:?}", columns_to_expand);
+
+    let new_points = get_new_points(&original_points, &rows_to_expand, &columns_to_expand, 2);
+    let total01 = get_total(&new_points);
+
+    let points = get_new_points(
+        &original_points,
+        &rows_to_expand,
+        &columns_to_expand,
+        1000000,
+    );
+    let total02 = get_total(&points);
+
+    println!("Rows to expand: {:?}", rows_to_expand);
+    println!("Columns to expand: {:?}", columns_to_expand);
+    println!("Original points: {}, new: {}", original_points.len(), new_points.len());
+
     AocResult {
-        part01: (total01 / 2) as i32,
-        part02: 0,
+        part01: total01,
+        part02: total02,
     }
 }
 
