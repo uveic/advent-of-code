@@ -3,16 +3,105 @@ use std::collections::{HashMap, HashSet};
 use std::ops::Add;
 use std::{fs, i32};
 
+// Part 1: 9536038
 pub fn day11() -> AocResult {
     let content = fs::read_to_string(String::from("input/2023/day11.txt")).unwrap();
     let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
 
-    for line in lines {
-        println!("{line}");
+    #[derive(Debug)]
+    struct Point {
+        x: usize,
+        y: usize,
+    }
+
+    fn get_matrix(lines: &Vec<&str>) -> Vec<Vec<char>> {
+        let mut output = Vec::new();
+
+        for line in lines {
+            output.push(line.chars().collect());
+        }
+
+        output
+    }
+
+    fn get_points(matrix: &Vec<Vec<char>>) -> Vec<Point> {
+        let mut expanded_rows = Vec::new();
+
+        for m in matrix {
+            let length = m
+                .iter()
+                .collect::<HashSet<_>>()
+                .len();
+
+            if length == 1 {
+                expanded_rows.push(m.clone());
+            }
+
+            expanded_rows.push(m.clone());
+        }
+
+        let mut columns: Vec<usize> = Vec::new();
+        for i in 0 .. expanded_rows[0].len() {
+            let mut column: Vec<char> = Vec::new();
+            for j in 0 .. expanded_rows.len() {
+                column.push(expanded_rows[j].get(i).unwrap().clone());
+            }
+
+            let length = column
+                .iter()
+                .collect::<HashSet<_>>()
+                .len();
+
+            if length == 1 {
+                columns.push(i);
+            }
+        }
+
+        let mut expanded_columns = Vec::new();
+        for i in 0 .. expanded_rows.len() {
+            let mut column: Vec<char> = Vec::new();
+            for j in 0 .. expanded_rows[0].len() {
+                for c in &columns {
+                    if &j == c {
+                        column.push(expanded_rows[i].get(j).unwrap().clone());
+                    }
+                }
+
+                column.push(expanded_rows[i].get(j).unwrap().clone());
+            }
+
+            expanded_columns.push(column);
+        }
+
+        let mut output = Vec::new();
+        for i in 0 .. expanded_columns.len() {
+            for j in 0 .. expanded_columns[0].len() {
+                let c = expanded_columns[i].get(j).unwrap();
+                if c == &'#' {
+                    output.push(Point { x: i, y: j });
+                }
+            }
+        }
+
+        output
+    }
+
+    let matrix = get_matrix(&lines);
+    let points = get_points(&matrix);
+
+    let mut total01: usize = 0;
+    for a in &points {
+        for b in &points {
+            if a.x == b.x && a.y == b.y {
+                continue;
+            }
+
+            total01 += a.x.abs_diff(b.x) + a.y.abs_diff(b.y);
+        }
     }
 
     AocResult {
-        part01: 0,
+        part01: (total01 / 2) as i32,
         part02: 0,
     }
 }
