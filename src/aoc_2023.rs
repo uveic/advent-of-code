@@ -3,6 +3,50 @@ use std::collections::{HashMap, HashSet};
 use std::ops::Add;
 use std::{fs, i32};
 
+pub fn day06() -> AocResult {
+    fn calculate_distance(race: &Race) -> usize {
+        let mut output: usize = 0;
+        for i in 1..=race.time {
+            let distance = i * (race.time - i);
+
+            if distance > race.distance {
+                output += 1;
+            }
+        }
+
+        output
+    }
+
+    struct Race {
+        time: usize,
+        distance: usize,
+    }
+
+    let races: Vec<Race> = vec![
+        Race { time: 46, distance: 208 },
+        Race { time: 85, distance: 1412 },
+        Race { time: 75, distance: 1257 },
+        Race { time: 82, distance: 1410 },
+    ];
+
+    let mut total01: usize = 1;
+    for race in races {
+        total01 *= calculate_distance(&race);
+    }
+
+    AocResult {
+        part01: total01 as i32,
+        part02: 0,
+    }
+}
+
+pub fn day05() -> AocResult {
+    AocResult {
+        part01: 0,
+        part02: 0,
+    }
+}
+
 pub fn day04() -> AocResult {
     let content = fs::read_to_string(String::from("input/2023/day04.txt")).unwrap();
     let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
