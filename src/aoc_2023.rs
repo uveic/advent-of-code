@@ -34,9 +34,18 @@ pub fn day06() -> AocResult {
         total01 *= calculate_distance(&race);
     }
 
+    let races: Vec<Race> = vec![
+        Race { time: 46857582, distance: 208141212571410 },
+    ];
+
+    let mut total02: usize = 1;
+    for race in races {
+        total02 *= calculate_distance(&race);
+    }
+
     AocResult {
         part01: total01 as i32,
-        part02: 0,
+        part02: total02 as i32,
     }
 }
 
