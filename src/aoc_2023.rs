@@ -39,10 +39,22 @@ pub fn day06() -> AocResult {
     }
 
     let races: Vec<Race> = vec![
-        Race { time: 46, distance: 208 },
-        Race { time: 85, distance: 1412 },
-        Race { time: 75, distance: 1257 },
-        Race { time: 82, distance: 1410 },
+        Race {
+            time: 46,
+            distance: 208,
+        },
+        Race {
+            time: 85,
+            distance: 1412,
+        },
+        Race {
+            time: 75,
+            distance: 1257,
+        },
+        Race {
+            time: 82,
+            distance: 1410,
+        },
     ];
 
     let total01: usize = races
@@ -51,9 +63,10 @@ pub fn day06() -> AocResult {
         .into_iter()
         .product();
 
-    let races: Vec<Race> = vec![
-        Race { time: 46857582, distance: 208141212571410 },
-    ];
+    let races: Vec<Race> = vec![Race {
+        time: 46857582,
+        distance: 208141212571410,
+    }];
 
     let total02: usize = races
         .iter()
@@ -84,13 +97,13 @@ pub fn day04() -> AocResult {
         let position_colon = line.find(":").unwrap();
         let position_bar = line.find("|").unwrap();
 
-        let winning_numbers: &HashSet<i32> = &line[position_colon+1..position_bar]
+        let winning_numbers: &HashSet<i32> = &line[position_colon + 1..position_bar]
             .trim()
             .split(" ")
             .filter(|n| n.len() > 0)
             .map(|n| n.trim().parse::<i32>().unwrap())
             .collect();
-        let card_numbers: &HashSet<i32> = &line[position_bar+1..]
+        let card_numbers: &HashSet<i32> = &line[position_bar + 1..]
             .trim()
             .split(" ")
             .filter(|n| n.len() > 0)
@@ -123,7 +136,7 @@ pub fn day04() -> AocResult {
         }
 
         for _ in 0..cards_won {
-            for new_line in line_count+1..=line_count+winning_numbers_count {
+            for new_line in line_count + 1..=line_count + winning_numbers_count {
                 if new_line >= total_lines {
                     continue;
                 }

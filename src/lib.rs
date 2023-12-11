@@ -27,7 +27,10 @@ pub fn aoc_2023(day: Option<i32>) {
         Some(5) => aoc_2023::day05(),
         Some(6) => aoc_2023::day06(),
         Some(11) => aoc_2023::day11(),
-        _ => AocResult { part01: 0, part02: 0 },
+        _ => AocResult {
+            part01: 0,
+            part02: 0,
+        },
     };
 
     println!("############ 2023 DAY {} ############", day.unwrap_or(0));

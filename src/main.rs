@@ -1,5 +1,5 @@
-use std::env;
 use chrono::Datelike;
+use std::env;
 //use advent_of_code::aoc_2022;
 use advent_of_code::{aoc_2022, aoc_2023};
 
@@ -10,9 +10,8 @@ fn main() {
             if arg == "--year" {
                 return args
                     .get(count + 1)
-                    .unwrap_or(
-                        &chrono::Utc::now().year().to_string()
-                    ).trim()
+                    .unwrap_or(&chrono::Utc::now().year().to_string())
+                    .trim()
                     .parse::<i32>()
                     .unwrap();
             }
