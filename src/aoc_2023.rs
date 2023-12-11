@@ -3,6 +3,22 @@ use std::collections::{HashMap, HashSet};
 use std::ops::Add;
 use std::{fs, i32};
 
+pub fn day11() -> AocResult {
+    let content = fs::read_to_string(String::from("input/2023/day11.txt")).unwrap();
+    let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
+
+    for line in lines {
+        println!("{line}");
+    }
+
+    AocResult {
+        part01: 0,
+        part02: 0,
+    }
+}
+
+// Part 1: 1108800
+// Part 2: 36919753
 pub fn day06() -> AocResult {
     fn calculate_distance(race: &Race) -> usize {
         let mut output: usize = 0;
@@ -29,19 +45,21 @@ pub fn day06() -> AocResult {
         Race { time: 82, distance: 1410 },
     ];
 
-    let mut total01: usize = 1;
-    for race in races {
-        total01 *= calculate_distance(&race);
-    }
+    let total01: usize = races
+        .iter()
+        .map(|r| calculate_distance(&r))
+        .into_iter()
+        .product();
 
     let races: Vec<Race> = vec![
         Race { time: 46857582, distance: 208141212571410 },
     ];
 
-    let mut total02: usize = 1;
-    for race in races {
-        total02 *= calculate_distance(&race);
-    }
+    let total02: usize = races
+        .iter()
+        .map(|r| calculate_distance(&r))
+        .into_iter()
+        .product();
 
     AocResult {
         part01: total01 as i32,
@@ -56,6 +74,8 @@ pub fn day05() -> AocResult {
     }
 }
 
+// Part 1: 28538
+// Part 2: 9425061
 pub fn day04() -> AocResult {
     let content = fs::read_to_string(String::from("input/2023/day04.txt")).unwrap();
     let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
@@ -125,6 +145,8 @@ pub fn day04() -> AocResult {
     }
 }
 
+// Part 1: 528819
+// Part 2: 80403602
 pub fn day03() -> AocResult {
     let content = fs::read_to_string(String::from("input/2023/day03.txt")).unwrap();
     let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
@@ -286,6 +308,8 @@ pub fn day03() -> AocResult {
     }
 }
 
+// Part 1: 2449
+// Part 2: 63981
 pub fn day02() -> AocResult {
     #[derive(Copy, Clone, Debug)]
     struct RGB {
@@ -398,6 +422,8 @@ pub fn day02() -> AocResult {
     }
 }
 
+// Part 1: 53386
+// Part 2: 53312
 pub fn day01() -> AocResult {
     fn get_value(text: &str) -> char {
         match text {

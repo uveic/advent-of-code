@@ -18,34 +18,19 @@ pub fn aoc_2022() {
     aoc_2022::day09();
 }
 
-pub fn aoc_2023() {
-    let res: AocResult = aoc_2023::day01();
-    println!("############ 2023 DAY 1 ############");
-    println!("Part 1, result: {:?}", res.part01); // 53386
-    println!("Part 2, result: {:#?}", res.part02); // 53312
+pub fn aoc_2023(day: Option<i32>) {
+    let res: AocResult = match day {
+        Some(1) => aoc_2023::day01(),
+        Some(2) => aoc_2023::day02(),
+        Some(3) => aoc_2023::day03(),
+        Some(4) => aoc_2023::day04(),
+        Some(5) => aoc_2023::day05(),
+        Some(6) => aoc_2023::day06(),
+        Some(11) => aoc_2023::day11(),
+        _ => AocResult { part01: 0, part02: 0 },
+    };
 
-    let res: AocResult = aoc_2023::day02();
-    println!("############ 2023 DAY 2 ############");
-    println!("Part 1, result: {:?}", res.part01); // 2449
-    println!("Part 2, result: {:#?}", res.part02); // 63981
-
-    let res: AocResult = aoc_2023::day03();
-    println!("############ 2023 DAY 3 ############");
-    println!("Part 1, result: {:?}", res.part01); // 528819
-    println!("Part 2, result: {:#?}", res.part02); // 80403602
-
-    let res: AocResult = aoc_2023::day04();
-    println!("############ 2023 DAY 4 ############");
-    println!("Part 1, result: {:?}", res.part01); // 28538
-    println!("Part 2, result: {:#?}", res.part02); // 9425061
-
-    let res: AocResult = aoc_2023::day05();
-    println!("############ 2023 DAY 5 ############");
+    println!("############ 2023 DAY {} ############", day.unwrap_or(0));
     println!("Part 1, result: {:?}", res.part01);
     println!("Part 2, result: {:#?}", res.part02);
-
-    let res: AocResult = aoc_2023::day06();
-    println!("############ 2023 DAY 6 ############");
-    println!("Part 1, result: {:?}", res.part01); // 1108800
-    println!("Part 2, result: {:#?}", res.part02); // 36919753
 }
