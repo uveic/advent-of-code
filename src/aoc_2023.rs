@@ -1,11 +1,12 @@
 use crate::AocResult;
 use std::collections::{HashMap, HashSet};
 use std::ops::Add;
-use std::{fs, i32};
+use std::{fs, i32, usize};
 
 // Part 1: 9536038
 // Part 2: 1068041782 => too low
 // Part 2: 1068489518 => too low
+// Part 2: 447744640566 => it was too low because i32 wasn't big enough
 pub fn day11() -> AocResult {
     let content = fs::read_to_string(String::from("input/2023/day11.txt")).unwrap();
     let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
@@ -106,17 +107,12 @@ pub fn day11() -> AocResult {
             let new_y = p.y + y_expansion;
 
             output.push(Point { x: new_x, y: new_y });
-
-            println!(
-                "{}-{} + {}-{} => {}-{} ::: multiplier: {}, {}",
-                p.x, p.y, x_expansion, y_expansion, new_x, new_y, x_multiplier, y_multiplier
-            );
         }
 
         output
     }
 
-    fn get_total(points: &Vec<Point>) -> i32 {
+    fn get_total(points: &Vec<Point>) -> usize {
         let mut repeated: HashSet<String> = HashSet::new();
         let mut total: usize = 0;
 
@@ -135,12 +131,11 @@ pub fn day11() -> AocResult {
                 repeated.insert(first);
                 repeated.insert(second);
 
-                // println!("Distance {}-{} => {}-{} -> {}", a.x, a.y, b.x, b.y, a.x.abs_diff(b.x) + a.y.abs_diff(b.y));
                 total += a.x.abs_diff(b.x) + a.y.abs_diff(b.y);
             }
         }
 
-        total as i32
+        total
     }
 
     let matrix = get_matrix(&lines);
@@ -148,9 +143,6 @@ pub fn day11() -> AocResult {
     let original_points = get_original_points(&matrix);
     let rows_to_expand = get_rows_to_expand(&matrix);
     let columns_to_expand = get_columns_to_expand(&matrix);
-
-    println!("Rows to expand: {:?}", rows_to_expand);
-    println!("Columns to expand: {:?}", columns_to_expand);
 
     let new_points = get_new_points(&original_points, &rows_to_expand, &columns_to_expand, 2);
     let total01 = get_total(&new_points);
@@ -162,10 +154,6 @@ pub fn day11() -> AocResult {
         1000000,
     );
     let total02 = get_total(&points);
-
-    println!("Rows to expand: {:?}", rows_to_expand);
-    println!("Columns to expand: {:?}", columns_to_expand);
-    println!("Original points: {}, new: {}", original_points.len(), new_points.len());
 
     AocResult {
         part01: total01,
@@ -231,8 +219,8 @@ pub fn day06() -> AocResult {
         .product();
 
     AocResult {
-        part01: total01 as i32,
-        part02: total02 as i32,
+        part01: total01,
+        part02: total02,
     }
 }
 
@@ -310,7 +298,7 @@ pub fn day04() -> AocResult {
 
     AocResult {
         part01: total01,
-        part02: total02 as i32,
+        part02: total02,
     }
 }
 
@@ -320,7 +308,7 @@ pub fn day03() -> AocResult {
     let content = fs::read_to_string(String::from("input/2023/day03.txt")).unwrap();
     let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
 
-    fn get_number_to_the_right(line: &str) -> i32 {
+    fn get_number_to_the_right(line: &str) -> usize {
         let mut result = String::from("");
         for c in line.chars() {
             if !c.is_ascii_digit() {
@@ -334,10 +322,10 @@ pub fn day03() -> AocResult {
             return 0;
         }
 
-        result.parse::<i32>().unwrap()
+        result.parse::<usize>().unwrap()
     }
 
-    fn get_number_to_the_left(line: &str) -> i32 {
+    fn get_number_to_the_left(line: &str) -> usize {
         let mut result = String::from("");
         for c in line.chars().rev() {
             if !c.is_ascii_digit() {
@@ -356,11 +344,11 @@ pub fn day03() -> AocResult {
             output.push(c);
         }
 
-        output.parse::<i32>().unwrap()
+        output.parse::<usize>().unwrap()
     }
 
-    fn get_number(line: &str, position: usize) -> HashSet<i32> {
-        let mut output: HashSet<i32> = HashSet::new();
+    fn get_number(line: &str, position: usize) -> HashSet<usize> {
+        let mut output: HashSet<usize> = HashSet::new();
 
         for i in position - 1..position + 2 {
             let mut start: usize = i;
@@ -393,7 +381,7 @@ pub fn day03() -> AocResult {
                     end += 1;
                 }
 
-                let part = &line[start..end].parse::<i32>().unwrap();
+                let part = &line[start..end].parse::<usize>().unwrap();
 
                 if !output.contains(part) {
                     output.insert(*part);
@@ -409,8 +397,8 @@ pub fn day03() -> AocResult {
         previous_line: &str,
         next_line: &str,
         position: usize,
-    ) -> Vec<i32> {
-        let mut output: Vec<i32> = Vec::new();
+    ) -> Vec<usize> {
+        let mut output: Vec<usize> = Vec::new();
 
         output.push(get_number_to_the_right(&line[position + 1..]));
         output.push(get_number_to_the_left(&line[..position]));
@@ -431,10 +419,10 @@ pub fn day03() -> AocResult {
     }
 
     let mut total02 = 0;
-    let mut numbers: Vec<i32> = Vec::new();
+    let mut numbers: Vec<usize> = Vec::new();
     let mut line_count = 0;
     for line in &lines {
-        let mut line_numbers: Vec<i32> = Vec::new();
+        let mut line_numbers: Vec<usize> = Vec::new();
         let mut char_count = 0;
         let mut symbols_position: Vec<(i32, bool)> = Vec::new();
         for char in line.chars() {
@@ -454,7 +442,7 @@ pub fn day03() -> AocResult {
             );
 
             if position.1 == true {
-                let mut not_zero: Vec<i32> = Vec::new();
+                let mut not_zero: Vec<usize> = Vec::new();
                 for ln in &line_numbers {
                     if *ln != 0 {
                         not_zero.push(*ln);
@@ -462,7 +450,7 @@ pub fn day03() -> AocResult {
                 }
 
                 if not_zero.len() == 2 {
-                    total02 += not_zero.iter().product::<i32>();
+                    total02 += not_zero.iter().product::<usize>();
                 }
             }
         }
@@ -497,7 +485,7 @@ pub fn day02() -> AocResult {
         }
     }
 
-    fn process_line(line: &str, loaded: &RGB) -> (i32, i32) {
+    fn process_line(line: &str, loaded: &RGB) -> (usize, usize) {
         let position_colon = line.find(":").unwrap();
 
         let cubes: Vec<RGB> = line[position_colon + 1..]
@@ -558,11 +546,11 @@ pub fn day02() -> AocResult {
         }
 
         if res_part01 {
-            (0, min_cubes.product() as i32)
+            (0, min_cubes.product() as usize)
         } else {
             (
                 line[4..position_colon].trim().parse().unwrap(),
-                min_cubes.product() as i32,
+                min_cubes.product() as usize,
             )
         }
     }
@@ -577,8 +565,8 @@ pub fn day02() -> AocResult {
     };
 
     let res = lines.iter().map(|l| process_line(l, &loaded));
-    let mut total01 = 0;
-    let mut total02 = 0;
+    let mut total01: usize = 0;
+    let mut total02: usize = 0;
 
     for item in res {
         total01 += item.0;
@@ -618,7 +606,7 @@ pub fn day01() -> AocResult {
 
     let mut first_digit_pos = 0;
     let mut last_digit_pos = 0;
-    let mut total: i32 = 0;
+    let mut total: usize = 0;
     for line in lines {
         let mut first: Option<char> = None;
         let mut last: Option<char> = None;
@@ -664,7 +652,7 @@ pub fn day01() -> AocResult {
 
         total += String::from(first.unwrap())
             .add(&last.unwrap().to_string())
-            .parse::<i32>()
+            .parse::<usize>()
             .unwrap();
     }
 

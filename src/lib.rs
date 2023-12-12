@@ -2,8 +2,8 @@ mod aoc_2022;
 mod aoc_2023;
 
 struct AocResult {
-    part01: i32,
-    part02: i32,
+    part01: usize,
+    part02: usize,
 }
 
 pub fn aoc_2022() {
