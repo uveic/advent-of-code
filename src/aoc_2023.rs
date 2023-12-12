@@ -3,6 +3,79 @@ use std::collections::{HashMap, HashSet};
 use std::ops::Add;
 use std::{fs, i32, usize};
 
+pub fn day12() -> AocResult {
+    fn check_result(replaced: &str, result: Vec<usize>) -> usize {
+        let res: Vec<usize> = replaced
+            .split(".")
+            .filter_map(|p| {
+                let l: usize = p.trim().len();
+                if l > 0 {
+                    Some(l)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        println!("Result: {:?} - {:?}", res, result);
+
+        if res == result {
+            return 1;
+        }
+
+        0
+    }
+
+    // fn replace(input: &str) -> &str {
+    //     let mut output: String = String::new();
+    //     for c in input.chars() {
+    //         let mut new_char: char = c;
+    //         if c == '?' {
+    //             new_char = '.';
+    //         }
+    //
+    //         output.push(new_char);
+    //     }
+    //
+    //     &output
+    // }
+    //
+    // fn get_replacements(input: &str) -> Vec<Vec<char>> {
+    //     let mut output: Vec<Vec<char>> = Vec::new();
+    //
+    //     let total_question = input
+    //         .chars()
+    //         .filter(|c| c == &'?')
+    //         .count();
+    //
+    //     let current: Vec<char> = vec!['.'; total_question];
+    //
+    //     while current.iter().find(&'.') {
+    //         output.push(current.clone());
+    //     }
+    //
+    //     output
+    // }
+
+    let content = fs::read_to_string(String::from("input/2023/day12.txt")).unwrap();
+    let lines: Vec<&str> = content.split("\n").filter(|l| l.len() > 0).collect();
+
+    let mut total01: usize = 0;
+    for line in lines {
+        let position_space = line.find(" ").unwrap();
+        let result: Vec<usize> = line[position_space .. ].split(",").map(|c| c.trim().parse::<usize>().unwrap()).collect();
+        let input: &str = line[..position_space].trim();
+
+        println!("Line: {:?} => {:?}", input, result);
+        total01 += check_result(input, result);
+    }
+
+    AocResult {
+        part01: total01,
+        part02: 0,
+    }
+}
+
 // Part 1: 9536038
 // Part 2: 1068041782 => too low
 // Part 2: 1068489518 => too low
