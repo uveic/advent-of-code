@@ -2,6 +2,275 @@ use crate::AocResult;
 use std::collections::{HashMap, HashSet};
 use std::ops::Add;
 use std::{fs, i32, usize};
+use std::cmp::Ordering;
+
+// Part 1: 6715 // too low
+pub fn day13() -> AocResult {
+    #[derive(Debug)]
+    #[derive(Copy)]
+    #[derive(Clone)]
+    struct RowResult {
+        value: usize,
+        size: usize,
+    }
+
+    impl Ord for RowResult {
+        fn cmp(&self, other: &Self) -> Ordering {
+            self.size.cmp(&other.size)
+        }
+    }
+
+    impl PartialOrd for RowResult {
+        fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+            Some(self.cmp(other))
+        }
+    }
+
+    impl PartialEq for RowResult {
+        fn eq(&self, other: &Self) -> bool {
+            self.size == other.size
+        }
+    }
+
+    impl Eq for RowResult { }
+
+    fn compare_row(row: &str, split_at: usize, length: usize) -> usize {
+        if split_at + length >= row.len() {
+            return 1;
+        }
+
+        let start = if split_at < length { 0 } else { split_at - length };
+
+        // println!("Row: {} === {} - {}", row, split_at, length);
+
+        let left = &row[start..split_at];
+        let right = &row[split_at..split_at + length];
+
+        // println!("{} <==> {}", left, right);
+
+        if left.chars().collect::<Vec<_>>() == right.chars().rev().collect::<Vec<_>>() {
+            return 0;
+        }
+
+        1
+    }
+
+    fn compare_rows(group: &Vec<&str>) -> RowResult {
+        let length = group[0].len();
+        let half = length / 2;
+        let mut vector_length = half;
+
+        for i in half..length {
+            let res: usize = group.iter().map(|r| compare_row(r, i, vector_length)).sum();
+
+            if res == 0 {
+                return RowResult {
+                    value: i,
+                    size: vector_length,
+                };
+            }
+
+            if length - i <= vector_length {
+                vector_length -= 1;
+            }
+        }
+
+        for size in (1..half).rev() {
+            for i in half..length {
+                let res: usize = group.iter().map(|r| compare_row(r, i, size)).sum();
+
+                if res == 0 {
+                    return RowResult {
+                        value: i,
+                        size,
+                    };
+                }
+            }
+        }
+
+        let mut results: Vec<RowResult> = Vec::new();
+
+        // Size: half or less
+        // From the beginning to the end
+        // Size decreases independently
+        for position in 1..=length {
+            for size in 1..=position + 1 {
+                if position + size + size >= length + 1 {
+                    continue;
+                }
+                // println!("Size: {}, Start: {}, End: {}", size, position, size);
+
+                // println!("{:?} <==> {:?}", top, bottom);
+
+                let res: usize = group.iter().map(|r| compare_row(r, position, size)).sum();
+
+                if res == 0 {
+                    results.push(
+                        RowResult {
+                            value: position,
+                            size,
+                        }
+                    );
+                }
+            }
+        }
+
+        *results.iter().max().unwrap_or(&RowResult { value: 0, size: 0 } )
+    }
+
+    fn compare_columns(group: &Vec<&str>) -> RowResult {
+        let length = group.len();
+        let half = length / 2;
+        let mut vector_length = half;
+
+        // Size: half or less
+        // From the middle to the end
+        // Size decreases when it moves towards the end
+        for i in half..length {
+            let top = group[i - half..i - half + vector_length].to_vec();
+            let mut bottom = group[i..i + vector_length].to_vec();
+            bottom.reverse();
+
+            // println!("{:?} <==> {:?}", top, bottom);
+
+            if top == bottom {
+                return RowResult {
+                    value: i * 100,
+                    size: vector_length,
+                };
+            }
+
+            if length - i <= vector_length {
+                vector_length -= 1;
+            }
+        }
+
+
+        // Size: half or less
+        // From the middle to the end
+        // Size decreases independently
+        for size in (1..half).rev() {
+            for i in half..length {
+                if i + size >= length {
+                    continue;
+                }
+                // println!("Size: {}, Start: {}, End: {}", size, i, i + size);
+
+                let top = group[i - half..i - half + size].to_vec();
+                let mut bottom = group[i..i + size].to_vec();
+                bottom.reverse();
+
+                // println!("{:?} <==> {:?}", top, bottom);
+
+                if top == bottom {
+                    return RowResult {
+                        value: i * 100,
+                        size,
+                    };
+                }
+            }
+        }
+
+        let mut results: Vec<RowResult> = Vec::new();
+
+        // Size: half or less
+        // From the beginning to the end
+        // Size decreases independently
+        for position in 0..=length {
+            for size in 1..=position + 1 {
+                if position + size + size >= length + 1 {
+                    continue;
+                }
+                // println!("Size: {}, Start: {}, End: {}", size, position, size);
+
+                let top = group[position..position + size].to_vec();
+                let mut bottom = group[position+size..position + size + size].to_vec();
+                bottom.reverse();
+
+                if size == 1 {
+                    println!("{:?} <==> {:?}  === {}..{}", top, bottom, position, position + size);
+                    // println!("{:?}  === {}..{}", top, position, position + size);
+                    // println!("{:?}  === {}..{}", bottom, position+size, position + size + size);
+                }
+
+                if top == bottom {
+                    results.push(
+                        RowResult {
+                           value: (position + 1) * 100,
+                            size,
+                        }
+                    );
+                }
+            }
+        }
+
+        *results.iter().max().unwrap_or(&RowResult { value: 0, size: 0 } )
+    }
+
+    fn transpose<'a>(group: &'a Vec<&'a str>) -> Vec<&'a str> {
+        let mut output: Vec<&str> = Vec::new();
+
+        for i in 0 .. group.len() {
+            let mut line: String = String::new();
+            for j in 0 .. group[0].len() {
+                line.push(group[i].chars().collect::<Vec<_>>()[j]);
+            }
+            output.push(line.as_str().clone());
+        }
+
+        output
+    }
+
+    fn get_value(group: &Vec<&str>) -> usize {
+        if group.len() == 0 {
+            return 0;
+        }
+
+        let res = transpose(group);
+        println!("Before: {:?}, After: {:?}", group, res);
+
+        let rows_res = compare_rows(&group);
+        let columns_res = compare_columns(&group);
+
+        println!("Rows: {:?}, columns: {:?}", rows_res, columns_res);
+
+        if rows_res.size == 0 && columns_res.size == 0 {
+            println!("First row: {}", group[0]);
+        }
+
+        if rows_res.size > columns_res.size {
+            rows_res.value
+        } else {
+            columns_res.value
+        }
+    }
+
+    let content = fs::read_to_string(String::from("input/2023/day13.txt")).unwrap();
+    let lines: Vec<&str> = content.split("\n").collect();
+
+    let mut group: Vec<&str> = Vec::new();
+    let mut total01: usize = 0;
+
+    for line in lines {
+        if line.trim().len() == 0 {
+            total01 += get_value(&group);
+            println!("Total: {}", total01);
+
+            group = Vec::new();
+            continue;
+        }
+
+        group.push(line);
+    }
+
+    total01 += get_value(&group);
+    println!("Total: {}", total01);
+
+    AocResult {
+        part01: total01,
+        part02: 0,
+    }
+}
 
 pub fn day12() -> AocResult {
     fn check_result(replaced: &str, result: Vec<usize>) -> usize {
@@ -63,7 +332,10 @@ pub fn day12() -> AocResult {
     let mut total01: usize = 0;
     for line in lines {
         let position_space = line.find(" ").unwrap();
-        let result: Vec<usize> = line[position_space .. ].split(",").map(|c| c.trim().parse::<usize>().unwrap()).collect();
+        let result: Vec<usize> = line[position_space..]
+            .split(",")
+            .map(|c| c.trim().parse::<usize>().unwrap())
+            .collect();
         let input: &str = line[..position_space].trim();
 
         println!("Line: {:?} => {:?}", input, result);

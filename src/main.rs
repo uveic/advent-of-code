@@ -1,7 +1,7 @@
+use advent_of_code::{aoc_2022, aoc_2023};
 use chrono::Datelike;
 use std::env;
 use std::process::exit;
-use advent_of_code::{aoc_2022, aoc_2023};
 
 fn main() {
     fn get_year(args: &Vec<String>) -> i32 {

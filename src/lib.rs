@@ -28,6 +28,7 @@ pub fn aoc_2023(day: i32) {
         6 => aoc_2023::day06(),
         11 => aoc_2023::day11(),
         12 => aoc_2023::day12(),
+        13 => aoc_2023::day13(),
         _ => AocResult {
             part01: 0,
             part02: 0,
